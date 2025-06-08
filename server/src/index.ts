@@ -1,6 +1,7 @@
 import express, { Request, Response } from "express";
 import cors from "cors";
-
+import { errorHandler } from "../middleware/errorHandler";
+import authRoutes from "../routes/auth.routes";
 const PORT = process.env.PORT || 3003;
 const app = express();
 
@@ -13,5 +14,9 @@ app.listen(PORT, () => {
 app.get("/", (req: Request, res: Response) => {
   res.send("The Backend is Live");
 });
+
+app.use("/auth", authRoutes);
+
+app.use(errorHandler);
 
 export default app;
