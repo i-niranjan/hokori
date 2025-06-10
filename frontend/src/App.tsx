@@ -1,9 +1,18 @@
-import { useState } from "react";
+import ErrorBoundary from "./components/error-boundary";
+import Navbar from "./components/navbar";
+import Sidebar from "./components/sidebar";
+import Dashboard from "./features/dashboard/pages/dashboard";
 
 function App() {
   return (
     <>
-      <div className="text-2xl p-10 font-medium bg-amber-100">HELLO WORLD</div>
+      <ErrorBoundary>
+        <div className="flex">
+          <Sidebar />
+          <Navbar />
+          <Dashboard />
+        </div>
+      </ErrorBoundary>
     </>
   );
 }
