@@ -1,16 +1,12 @@
-import React from "react";
 import { GiShintoShrine } from "react-icons/gi";
 import bgimage from "../assets/marcel-bg.jpg";
+import { TbCategory, TbGraph, TbSettings, TbTemplate } from "react-icons/tb";
 import {
-  TbCategory,
-  TbGraph,
-  TbRecordMail,
-  TbSettings,
-  TbTemplate,
-} from "react-icons/tb";
-import { Button } from "./ui/button";
-import { IoIosMail } from "react-icons/io";
-
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 function Sidebar() {
   const menu = [
     {
