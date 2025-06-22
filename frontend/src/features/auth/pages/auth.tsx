@@ -1,10 +1,24 @@
 import React from "react";
 import { LoginForm } from "../components/login-form";
+import { GiShintoShrine } from "react-icons/gi";
+import bgImgPath from "../../../assets/img/signup-bg.webp";
+import { Outlet } from "react-router";
 
 function Auth() {
+  console.log("hii");
+
   return (
-    <div>
-      <LoginForm />
+    <div className={`h-screen flex flex-col  bg-cover bg-center`}>
+      <div className="font-bold p-6 flex gap-3 items-center">
+        <GiShintoShrine size={40} className="text-primary" />
+        <span className="bg-gradient-to-br from-primary text-3xl to-secondary px-2 py-1 text-white rounded-xl">
+          Hokori
+        </span>
+      </div>
+
+      <div className="flex w-full h-full justify-center items-center">
+        <Outlet />
+      </div>
     </div>
   );
 }

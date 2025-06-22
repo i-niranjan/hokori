@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import bannerPath from "@/assets/img/signup_banner-1200X1800.webp";
 import { Link } from "react-router";
-export function LoginForm({
+export function SignupForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
@@ -16,37 +16,57 @@ export function LoginForm({
           <form className="p-6 md:p-8">
             <div className="flex flex-col gap-6">
               <div className="flex flex-col items-center text-center">
-                <h1 className="text-2xl font-bold">Welcome back</h1>
+                <h1 className="text-2xl font-bold">Welcome Dev</h1>
                 <p className="text-muted-foreground text-balance">
-                  Login to your hokori account
+                  Sign Up to your hokori account
                 </p>
               </div>
-              <div className="grid gap-3">
-                <Label htmlFor="email">Username/Email</Label>
-                <Input
-                  id="email"
-                  type="text"
-                  placeholder="@codewithjohn / john@gmail.com"
-                  required
-                />
-              </div>
-              <div className="grid gap-3">
-                <div className="flex items-center">
-                  <Label htmlFor="password">Password</Label>
-                  <a
-                    href="#"
-                    className="ml-auto text-sm underline-offset-2 hover:underline"
-                  >
-                    Forgot your password?
-                  </a>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="col-span-2 space-y-2">
+                  <Label htmlFor="username">Username</Label>
+                  <Input
+                    id="username"
+                    type="text"
+                    placeholder="@codewithjohn"
+                    required
+                  />
                 </div>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="*******"
-                  required
-                />
+                <div className="col-span-2 space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="we won’t spam, promise 😇"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="firstname">First Name</Label>
+                  <Input id="fname" type="text" placeholder="John" required />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="lastname">Last Name</Label>
+                  <Input id="lname" type="text" placeholder="Doe" required />
+                </div>
+                <div className="space-y-2 col-span-2">
+                  <div className="flex  items-center">
+                    <Label htmlFor="password">Password</Label>
+                    <a
+                      href="#"
+                      className="ml-auto text-sm underline-offset-2 hover:underline"
+                    >
+                      Forgot your password?
+                    </a>
+                  </div>
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="*******"
+                    required
+                  />
+                </div>
               </div>
+
               <Button type="submit" className="w-full">
                 Login
               </Button>
@@ -100,12 +120,12 @@ export function LoginForm({
                 </Button>
               </div>
               <div className="text-center text-sm">
-                Don&apos;t have an account?{" "}
+                Already have an account?&nbsp;
                 <Link
-                  to="/auth/signup"
+                  to={"/auth/login"}
                   className="underline underline-offset-4"
                 >
-                  Sign up
+                  Login
                 </Link>
               </div>
             </div>
