@@ -1,36 +1,55 @@
 import { hashSync, compare } from "bcrypt-ts";
 import { PrismaClient } from "@prisma/client";
+import { isEmail } from "../utils/helper";
+
 const prisma = new PrismaClient();
 
 export class AuthService {
-  async signUp(data: any) {
-    const { email, password } = data;
-
-    const emailExists = await prisma.user.findUnique({ where: { email } });
-    if (emailExists) {
+  async signUp({
+    email,
+    password,
+    ...data
+  }: {
+    email: string;
+    password: string;
+    userName: string;
+    firstName: string;
+    lastName: string;
+  }) {
+    const existingUser = await prisma.user.findUnique({ where: { email } });
+    if (existingUser) {
       throw { status: 400, message: "Email already exists" };
     }
 
     const hashedPassword = hashSync(password, 10);
-    data.password = hashedPassword;
-
-    await prisma.user.create({ data });
-    return { message: "User registered successfully" };
+    return prisma.user.create({
+      data: { email, password: hashedPassword, ...data },
+    });
   }
 
-  async login(data: any) {
-    const { email, password } = data;
-    const user = await prisma.user.findUnique({ where: { email } });
+  async login({
+    identifier,
+    password,
+  }: {
+    identifier: string;
+    password: string;
+  }) {
+    const isLoginWithEmail = isEmail(identifier);
+    const user = await prisma.user.findUnique({
+      where: isLoginWithEmail
+        ? { email: identifier }
+        : { userName: identifier },
+    });
 
     if (!user) {
-      throw { status: 400, message: "Email doesn't exist" };
+      throw { status: 400, message: "User not found" };
     }
 
-    const valid = await compare(password, user.password);
-    if (!valid) {
-      throw { status: 401, message: "Invalid credentials" };
+    const isValid = await compare(password, user.password);
+    if (!isValid) {
+      throw { status: 401, message: "Invalid password" };
     }
 
-    return { message: "Login successful" };
+    return user;
   }
 }
