@@ -1,4 +1,4 @@
-import type { User } from "@/models/auth/authTypes";
+import type { UserSchema, Login } from "@/models/auth/authTypes";
 import axios from "axios";
 import { toast } from "sonner";
 import { createAppSlice } from "@/app/createAppSlice";
@@ -21,13 +21,21 @@ const authSlice = createAppSlice({
   initialState: {
     user: null,
     loading: false,
-    token: null,
+    token: localStorage.getItem("token") ?? null,
   } satisfies AuthState as AuthState,
   reducers: (create) => ({
     signup: create.asyncThunk(
-      async (data: User, thunkApi) => {
-        const res = await axios.post(`${API_URL}/signup`, data);
-        return res.data;
+      async (data: UserSchema, { rejectWithValue }) => {
+        try {
+          const res = await axios.post(`${API_URL}/auth/signup`, data);
+          return res.data;
+        } catch (error: any) {
+          console.log("Caught error:", error.response?.data);
+
+          return rejectWithValue(
+            error.response?.data?.message || "Signup failed"
+          );
+        }
       },
       {
         pending: (state) => {
@@ -35,20 +43,34 @@ const authSlice = createAppSlice({
         },
         rejected: (state, action) => {
           state.loading = false;
-          toast.error(action.error.message || "Signup failed");
+
+          toast.error(action.payload as string);
         },
         fulfilled: (state, action) => {
+          state.loading = false;
           const { message, token, user } = action.payload;
           state.user = user;
           state.token = token;
+          localStorage.setItem("token", token);
+          localStorage.setItem("email", user.email);
+          localStorage.setItem("firstName", user.firstName);
+          localStorage.setItem("lastName", user.lastName);
           toast(message);
         },
       }
     ),
     login: create.asyncThunk(
-      async (data: User, thunkApi) => {
-        const res = await axios.post(`${API_URL}/login`, data);
-        return res.data;
+      async (data: Login, { rejectWithValue }) => {
+        try {
+          const res = await axios.post(`${API_URL}/auth/login`, data);
+          return res.data;
+        } catch (error: any) {
+          console.log("Caught error:", error.response?.data);
+
+          return rejectWithValue(
+            error.response?.data?.message || "Login Failed"
+          );
+        }
       },
       {
         pending: (state) => {
@@ -56,12 +78,17 @@ const authSlice = createAppSlice({
         },
         rejected: (state, action) => {
           state.loading = false;
-          toast.error(action.error.message || "Signup failed");
+
+          toast.error(action.payload as string);
         },
         fulfilled: (state, action) => {
           const { message, token, user } = action.payload;
           state.user = user;
           state.token = token;
+          localStorage.setItem("token", token);
+          localStorage.setItem("email", user.email);
+          localStorage.setItem("firstName", user.firstName);
+          localStorage.setItem("lastName", user.lastName);
           toast(message);
         },
       }

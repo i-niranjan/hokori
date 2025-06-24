@@ -10,8 +10,16 @@ import { SignupForm } from "./models/auth/components/signup-form";
 import Home from "./Home";
 import MainLayout from "./MainLayout";
 import { LoginForm } from "./models/auth/components/login-form";
+import { Toaster } from "./components/ui/sonner";
+import { useSelector } from "react-redux";
+import type { RootState } from "./app/store";
+
 function App() {
-  const isLoggedIn = false;
+  let isLoggedIn = false;
+  const token = useSelector((state: RootState) => state.auth.token);
+  if (token) {
+    isLoggedIn = true;
+  }
   return (
     <>
       <ErrorBoundary>
@@ -36,6 +44,7 @@ function App() {
             <Route path="signup" element={<SignupForm className="w-1/2" />} />
           </Route>
         </Routes>
+        <Toaster />
       </ErrorBoundary>
     </>
   );

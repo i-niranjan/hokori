@@ -1,20 +1,38 @@
 import { cn } from "@/lib/utils";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import bannerPath from "@/assets/img/signup_banner-1200X1800.webp";
-import { Link } from "react-router";
+import { Link, useOutletContext } from "react-router";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { loginSchema } from "../schema";
+import { useState } from "react";
+import { IconEye, IconEyeClosed } from "@tabler/icons-react";
+import type { AuthContextType } from "../pages/auth";
 
+type FormData = z.infer<typeof loginSchema>;
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+  const [showPassword, setShowPassword] = useState(false);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({ mode: "onBlur", resolver: zodResolver(loginSchema) });
+
+  const { handleLogin } = useOutletContext<AuthContextType>();
+
   return (
     <div className={cn("flex flex-col gap-6 m-5", className)} {...props}>
       <Card className="overflow-hidden p-0 rounded-none shadow-none">
         <CardContent className="grid p-0 md:grid-cols-2">
-          <form className="p-6 md:p-8">
+          <form onSubmit={handleSubmit(handleLogin)} className="p-6 md:p-8">
             <div className="flex flex-col gap-6">
               <div className="flex flex-col items-center text-center">
                 <h1 className="text-2xl font-bold">Welcome back</h1>
@@ -25,14 +43,17 @@ export function LoginForm({
               <div className="grid gap-3">
                 <Label htmlFor="email">Username/Email</Label>
                 <Input
-                  id="email"
+                  {...register("identifier")}
                   type="text"
                   placeholder="@codewithjohn / john@gmail.com"
                   required
                 />
+                {errors.identifier && (
+                  <p className="text-red-600">{errors.identifier.message}</p>
+                )}
               </div>
               <div className="grid gap-3">
-                <div className="flex items-center">
+                <div className="flex items-center ">
                   <Label htmlFor="password">Password</Label>
                   <a
                     href="#"
@@ -41,12 +62,25 @@ export function LoginForm({
                     Forgot your password?
                   </a>
                 </div>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="*******"
-                  required
-                />
+                <div className="relative">
+                  <Input
+                    {...register("password")}
+                    type={showPassword ? "text" : "password"}
+                    placeholder="*******"
+                    required
+                  />
+                  <span
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    className="absolute right-2 top-2 cursor-pointer text-gray-400"
+                  >
+                    {showPassword ? <IconEye /> : <IconEyeClosed />}
+                  </span>
+                </div>
+                <div>
+                  {errors.password && (
+                    <p className="text-red-600">{errors.password.message}</p>
+                  )}
+                </div>
               </div>
               <Button type="submit" className="w-full">
                 Login

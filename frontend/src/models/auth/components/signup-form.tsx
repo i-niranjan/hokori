@@ -1,21 +1,41 @@
 import { cn } from "@/lib/utils";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import bannerPath from "@/assets/img/signup_banner-1200X1800.webp";
-import { Link } from "react-router";
-import { useForm, type Resolver } from "react-hook-form";
+import { Link, useOutletContext } from "react-router";
+import { useForm } from "react-hook-form";
+import { IconEye, IconEyeClosed } from "@tabler/icons-react";
+import type { AuthContextType } from "../pages/auth";
+import { useState } from "react";
+import { signupSchema } from "../schema";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+type FormData = z.infer<typeof signupSchema>;
 
 export function SignupForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+  const [showPassword, setShowPassword] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormData>({
+    mode: "onBlur",
+    resolver: zodResolver(signupSchema),
+  });
+
+  const { handleSignup } = useOutletContext<AuthContextType>();
   return (
     <div className={cn("flex flex-col gap-6 m-5", className)} {...props}>
       <Card className="overflow-hidden p-0 rounded-none shadow-none">
         <CardContent className="grid p-0 md:grid-cols-2">
-          <form className="p-6 md:p-8">
+          <form onSubmit={handleSubmit(handleSignup)} className="p-6 md:p-8">
             <div className="flex flex-col gap-6">
               <div className="flex flex-col items-center text-center">
                 <h1 className="text-2xl font-bold">Welcome Dev</h1>
@@ -27,45 +47,79 @@ export function SignupForm({
                 <div className="col-span-2 space-y-2">
                   <Label htmlFor="username">Username</Label>
                   <Input
-                    id="username"
+                    {...register("userName")}
                     type="text"
                     placeholder="@codewithjohn"
                     required
                   />
+                  {errors.userName && (
+                    <p className="text-red-600">{errors.userName.message}</p>
+                  )}
                 </div>
                 <div className="col-span-2 space-y-2">
                   <Label htmlFor="email">Email</Label>
                   <Input
+                    {...register("email")}
                     id="email"
                     type="email"
                     placeholder="we won’t spam, promise 😇"
                     required
                   />
+                  {errors.email && (
+                    <p className="text-red-600">{errors.email.message}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="firstname">First Name</Label>
-                  <Input id="fname" type="text" placeholder="John" required />
+                  <Input
+                    {...register("firstName")}
+                    type="text"
+                    placeholder="John"
+                    required
+                  />
+                  {errors.firstName && (
+                    <p className="text-red-600">{errors.firstName.message}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="lastname">Last Name</Label>
-                  <Input id="lname" type="text" placeholder="Doe" required />
+                  <Input
+                    {...register("lastName")}
+                    type="text"
+                    placeholder="Doe"
+                    required
+                  />
+                  {errors.lastName && (
+                    <p className="text-red-600">{errors.lastName.message}</p>
+                  )}
                 </div>
                 <div className="space-y-2 col-span-2">
                   <div className="flex  items-center">
                     <Label htmlFor="password">Password</Label>
                     <a
                       href="#"
-                      className="ml-auto text-sm underline-offset-2 hover:underline"
+                      className="ml-auto  text-sm underline-offset-2 hover:underline"
                     >
                       Forgot your password?
                     </a>
                   </div>
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder="*******"
-                    required
-                  />
+                  <div className="relative">
+                    <Input
+                      {...register("password")}
+                      type={showPassword ? "text" : "password"}
+                      placeholder="*******"
+                      required
+                    />
+                    <span
+                      onClick={() => setShowPassword((prev) => !prev)}
+                      className="absolute right-2 top-2 cursor-pointer text-gray-400"
+                    >
+                      {showPassword ? <IconEye /> : <IconEyeClosed />}
+                    </span>
+                  </div>
+                  {errors.password && (
+                    <p className="text-red-600">{errors.password.message}</p>
+                  )}
                 </div>
               </div>
 
