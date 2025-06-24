@@ -16,9 +16,18 @@ export class AuthService {
     firstName: string;
     lastName: string;
   }) {
-    const existingUser = await prisma.user.findUnique({ where: { email } });
-    if (existingUser) {
-      throw { status: 400, message: "Email already exists" };
+    const [existingEmailUser, existingUsernameUser] = await Promise.all([
+      prisma.user.findUnique({ where: { email } }),
+      prisma.user.findUnique({ where: { userName: data.userName } }),
+    ]);
+
+    const errors = [];
+
+    if (existingEmailUser) errors.push("Email already exists");
+    if (existingUsernameUser) errors.push("Username already taken");
+
+    if (errors.length > 0) {
+      throw new Error(errors.join(" | "));
     }
 
     const hashedPassword = hashSync(password, 10);
