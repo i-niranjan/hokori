@@ -1,8 +1,7 @@
+import { jwtDecode } from "jwt-decode";
+
 export const isTokenExpired = (token: string) => {
-  try {
-    const { exp } = JSON.parse(atob(token.split(".")[1]));
-    return exp < Math.floor(Date.now() / 1000);
-  } catch (e) {
-    return true;
-  }
+  const decoded: { exp: number } = jwtDecode(token);
+  const isTokenExpired = Date.now() >= decoded.exp * 1000;
+  return isTokenExpired;
 };

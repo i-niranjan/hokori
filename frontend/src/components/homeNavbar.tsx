@@ -5,9 +5,13 @@ import HokoriLogo from "./hokori-logo";
 import { Button } from "../components/ui/button";
 import { IconArrowUpRight } from "@tabler/icons-react";
 import { Link, useNavigate } from "react-router";
+import { useSelector } from "react-redux";
+import { isTokenExpired } from "@/helpers/helper";
+import type { RootState } from "@/app/store";
 
 export default function HomeNavbar() {
-  const isLoggedIn = false;
+  const token = useSelector((state: RootState) => state.auth.token);
+  const isLoggedIn = token && !isTokenExpired(token);
   const navigate = useNavigate();
   return (
     <nav className="w-full h-24 p-3 ">
@@ -18,7 +22,14 @@ export default function HomeNavbar() {
 
         {isLoggedIn ? (
           <div className="flex gap-2 items-center">
-            <Button className="rounded-none hover:scale-110">Launchpad</Button>
+            <Button
+              onClick={() => {
+                navigate("/dashboard");
+              }}
+              className="rounded-none hover:scale-110"
+            >
+              Launchpad
+            </Button>
 
             <Avatar className="size-12">
               <AvatarImage src="https://github.com/shadcn.png" />

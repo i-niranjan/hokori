@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Bell, Search } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -16,15 +16,16 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {
   IconDotsVertical,
-  IconLayoutNavbarExpand,
   IconLogout,
   IconSettings,
   IconUser,
 } from "@tabler/icons-react";
 import { useNavigate } from "react-router";
-import { toast } from "sonner";
+import { useAppDispatch } from "@/app/store";
+import { logout } from "@/models/auth/features/authSlice";
 
 export default function Navbar() {
+  const dispatch = useAppDispatch();
   const [name, setName] = useState(
     `${localStorage.getItem("firstName")} ${localStorage.getItem("lastName")}`
   );
@@ -32,10 +33,7 @@ export default function Navbar() {
 
   const navigate = useNavigate();
   const handleLogOut = async () => {
-    ["token", "firstName", "lastName", "email"].forEach((key) => {
-      localStorage.removeItem(key);
-    });
-    toast("Bye Bruh");
+    await dispatch(logout()).unwrap();
     navigate("/auth/login");
   };
   return (

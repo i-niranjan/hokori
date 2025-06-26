@@ -12,14 +12,33 @@ import MainLayout from "./MainLayout";
 import { LoginForm } from "./models/auth/components/login-form";
 import { Toaster } from "./components/ui/sonner";
 import { useSelector } from "react-redux";
-import type { RootState } from "./app/store";
+import { useAppDispatch, type RootState } from "./app/store";
+import { isTokenExpired } from "./helpers/helper";
+import { useEffect, useState } from "react";
+import { logout } from "./models/auth/features/authSlice";
+import { toast } from "sonner";
 
 function App() {
-  let isLoggedIn = false;
+  const [isLoggedIn, setLoggedIn] = useState(false);
+  const dispatch = useAppDispatch();
   const token = useSelector((state: RootState) => state.auth.token);
-  if (token) {
-    isLoggedIn = true;
-  }
+  useEffect(() => {
+    const tokenCheck = async (token: string) => {
+      try {
+        const expired = isTokenExpired(token);
+        if (!expired) {
+          setLoggedIn(true);
+        } else {
+          toast("Token Expired, Logging out");
+          await dispatch(logout()).unwrap();
+        }
+      } catch (error) {
+        console.error("Invalid token:", error);
+      }
+    };
+    if (token) tokenCheck(token);
+  }, [token]);
+
   return (
     <>
       <ErrorBoundary>

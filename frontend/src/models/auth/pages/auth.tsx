@@ -1,5 +1,4 @@
 import { GiShintoShrine } from "react-icons/gi";
-import { useDispatch } from "react-redux";
 import { Outlet, useNavigate } from "react-router";
 import { signup, login } from "../features/authSlice";
 import type { Login, UserSchema } from "../authTypes";
@@ -17,6 +16,8 @@ function Auth() {
   const handleLogin = async (data: Login) => {
     try {
       await dispatch(login(data)).unwrap();
+      console.log("running");
+
       navigate("/dashboard");
     } catch (error) {
       console.error("Login Failed", error);

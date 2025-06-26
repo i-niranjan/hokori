@@ -93,8 +93,53 @@ const authSlice = createAppSlice({
         },
       }
     ),
+    logout: create.asyncThunk(
+      async (_, { rejectWithValue }) => {
+        try {
+          // Optional: Call logout API endpoint if your backend requires it
+          // const token = localStorage.getItem("token");
+          // if (token) {
+          //   await axios.post(`${API_URL}/auth/logout`, {}, {
+          //     headers: { Authorization: `Bearer ${token}` }
+          //   });
+          // }
+
+          return { message: "Logged out successfully" };
+        } catch (error: any) {
+          console.log("Logout error:", error.response?.data);
+          // Even if API call fails, we should still clear local storage
+          return { message: "Logged out successfully" };
+        }
+      },
+      {
+        pending: (state) => {
+          state.loading = true;
+        },
+        rejected: (state) => {
+          state.loading = false;
+          // Clear state and localStorage even on rejection
+          state.user = null;
+          state.token = null;
+          localStorage.removeItem("token");
+          localStorage.removeItem("email");
+          localStorage.removeItem("firstName");
+          localStorage.removeItem("lastName");
+          toast.error("Logout failed, but you've been logged out locally");
+        },
+        fulfilled: (state, action) => {
+          state.loading = false;
+          state.user = null;
+          state.token = null;
+          localStorage.removeItem("token");
+          localStorage.removeItem("email");
+          localStorage.removeItem("firstName");
+          localStorage.removeItem("lastName");
+          toast.success(action.payload.message);
+        },
+      }
+    ),
   }),
 });
 
-export const { signup, login } = authSlice.actions;
+export const { signup, login, logout } = authSlice.actions;
 export default authSlice.reducer;
