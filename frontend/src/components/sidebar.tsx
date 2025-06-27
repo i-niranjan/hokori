@@ -1,12 +1,7 @@
 import { GiShintoShrine } from "react-icons/gi";
 import bgimage from "../assets/marcel-bg.jpg";
 import { TbCategory, TbGraph, TbSettings, TbTemplate } from "react-icons/tb";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+
 function Sidebar() {
   const menu = [
     {
@@ -31,7 +26,7 @@ function Sidebar() {
     },
   ];
   return (
-    <div className="w-[20%] p-4 h-screen">
+    <div className="md:w-[20%] p-4 h-screen">
       <div className="h-full w-full rounded-2xl bg-gradient-to-b from-neutral-300 to-neutral-100 flex flex-col justify-between py-6">
         {/* Logo Section */}
         <div className="font-bold px-6 flex gap-3 items-center">
