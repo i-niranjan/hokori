@@ -4,7 +4,7 @@ import { set } from "lodash";
 const initialState = {
   blocks: [
     {
-      id: "",
+      id: "abc123",
       type: "PersonalInfo",
       visible: true,
       data: {

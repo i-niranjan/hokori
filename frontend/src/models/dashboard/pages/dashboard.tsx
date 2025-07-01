@@ -1,19 +1,19 @@
 import { Button } from "@/components/ui/button";
-import PersonalInfo from "@/models/blocks/components/PersonalInfo";
 import {
   IconEdit,
   IconGripVertical,
   IconPlus,
-  IconTrack,
   IconTrash,
 } from "@tabler/icons-react";
-import React from "react";
 import { motion } from "motion/react";
-import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import PersonalInfoPreview from "@/models/blocks/components/PersonalInfoPreview";
+import { useDispatch } from "react-redux";
+import { updateBlockField } from "@/models/blocks/features/profileSlice";
+
 const MotionButton = motion(Button);
 function Dashboard() {
+  const dispatch = useDispatch();
   return (
     <>
       <div className=" w-full   p-2">
@@ -64,6 +64,19 @@ function Dashboard() {
                   </div>
                 </div>
               </div>
+              <input
+                onChange={(e) =>
+                  dispatch(
+                    updateBlockField({
+                      id: "abc123",
+                      fieldPath: `data.name`, // or data.socials.twitter
+                      value: e.target.value,
+                    })
+                  )
+                }
+                className="w-100 p-2 rounded-sm border"
+                placeholder="name"
+              />
             </div>
           </div>
           <div className="md:w-[40%] h-[35rem] px-4 py-2  flex items-center justify-center">
