@@ -1,22 +1,31 @@
 import { Button } from "@/components/ui/button";
 import {
+  IconCamera,
   IconEdit,
   IconGripVertical,
   IconPlus,
   IconTrash,
+  IconX,
 } from "@tabler/icons-react";
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import { Switch } from "@/components/ui/switch";
 import PersonalInfoPreview from "@/models/blocks/components/PersonalInfoPreview";
 import { useDispatch } from "react-redux";
 import { updateBlockField } from "@/models/blocks/features/profileSlice";
+import { useState } from "react";
+import { Input } from "@/components/ui/input";
 
 const MotionButton = motion(Button);
 function Dashboard() {
   const dispatch = useDispatch();
+  const [state, setState] = useState(false);
+
+  const editProfile = () => {
+    setState(true);
+  };
   return (
     <>
-      <div className=" w-full   p-2">
+      <div className="h-screen w-full   p-2">
         <div className="flex  w-full  p-2 ">
           <div className="md:w-[60%] flex flex-col gap-2  p-2">
             <div className="border-b w-full h-max">
@@ -33,31 +42,113 @@ function Dashboard() {
                   Add Component <IconPlus />
                 </MotionButton>
               </div>
-              <div className="flex flex-col gap-3">
-                <div className="h-max w-150 rounded-2xl border bg-gradient-to-tl from-primary via-secondary to-secondary shadow-xs flex overflow-hidden">
+              <div className="flex relative flex-col gap-3">
+                <div className="h-max  w-150 rounded-2xl border bg-gradient-to-tl from-primary via-secondary to-secondary shadow-xs flex overflow-hidden">
+                  <div className="flex flex-col gap-3  w-full px-3 py-3 ">
+                    <span className="text-xl text-black font-semibold">
+                      Profile Information
+                    </span>
+                    <div className="flex gap-2 ">
+                      {/* <Button
+                        className="bg-accent hover:bg-white border-none "
+                        variant={"outline"}
+                      >
+                        <IconTrash /> Delete
+                      </Button> */}
+                      {!state && (
+                        <Button
+                          onClick={() => setState(true)}
+                          className=""
+                          variant={"outline"}
+                        >
+                          <IconEdit /> Edit
+                        </Button>
+                      )}
+                      {state && (
+                        <Button
+                          onClick={() => setState(false)}
+                          className=""
+                          variant={"outline"}
+                        >
+                          <IconX /> Cancel
+                        </Button>
+                      )}
+                    </div>
+                    <AnimatePresence>
+                      {state && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.4, ease: "easeInOut" }}
+                          className="overflow-hidden"
+                        >
+                          <div className="h-max border-t py-3 px-2">
+                            <div>
+                              <div className="gap-2 flex  text-white">
+                                <div>
+                                  <div className="h-20 relative rounded-full border overflow-hidden w-20">
+                                    <div className="absolute  inset-0 bg-black/40 opacity-30  flex items-center justify-center transition">
+                                      <IconCamera className="text-white w-6 h-6" />
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className="flex flex-col gap-2">
+                                  <Input
+                                    onChange={(e) =>
+                                      dispatch(
+                                        updateBlockField({
+                                          id: "abc123",
+                                          fieldPath: `data.name`, // or data.socials.twitter
+                                          value: e.target.value,
+                                        })
+                                      )
+                                    }
+                                    className="placeholder:text-primary"
+                                    placeholder="You're Name"
+                                  />
+                                  <Input
+                                    className="placeholder:text-primary"
+                                    placeholder="You're Dev Role"
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                  <div className="flex flex-col gap-2 items-center justify-center px-4 h-full">
+                    {/* <Switch className="border " /> */}
+                  </div>
+                  <div className="flex items-center justify-center h-full text-neutral-500 bg-white/40 px-3 cursor-pointer  ">
+                    <IconGripVertical className="size-5 text-white" />
+                  </div>
+                </div>
+                <div className="h-max  w-150 rounded-2xl border bg-gradient-to-tl from-primary via-secondary to-secondary shadow-xs flex overflow-hidden">
                   <div className="flex flex-col gap-3  w-full px-3 py-3 ">
                     <span className="text-xl text-black font-semibold">
                       Profile Information
                     </span>
                     <div className="flex gap-2 ">
                       <Button
-                        className="size-8 "
+                        className="bg-accent hover:bg-white border-none "
                         variant={"outline"}
-                        size={"icon"}
                       >
-                        <IconTrash />
+                        <IconTrash /> Delete
                       </Button>
                       <Button
-                        className="size-8"
+                        onClick={editProfile}
+                        className=""
                         variant={"outline"}
-                        size={"icon"}
                       >
-                        <IconEdit />
+                        <IconEdit /> Edit
                       </Button>
                     </div>
                   </div>
                   <div className="flex flex-col gap-2 items-center justify-center px-4 h-full">
-                    <Switch className="border " />
+                    {/* <Switch className="border " /> */}
                   </div>
                   <div className="flex items-center justify-center h-full text-neutral-500 bg-white/40 px-3 cursor-pointer  ">
                     <IconGripVertical className="size-5 text-white" />
