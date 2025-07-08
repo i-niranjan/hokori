@@ -84,11 +84,11 @@ function Dashboard() {
                           className="overflow-hidden"
                         >
                           <div className="h-max border-t py-3 px-2">
-                            <div>
+                            <div className="bg-white/70 p-2 rounded-2xl">
                               <div className="gap-2 flex  text-white">
                                 <div>
-                                  <div className="h-20 relative rounded-full border overflow-hidden w-20">
-                                    <div className="absolute  inset-0 bg-black/40 opacity-30  flex items-center justify-center transition">
+                                  <div className="border-primary border-2 h-20 relative rounded-full  overflow-hidden w-20">
+                                    <div className=" absolute  inset-0 bg-black/40 opacity-30  flex items-center justify-center transition">
                                       <IconCamera className="text-white w-6 h-6" />
                                     </div>
                                   </div>
@@ -104,11 +104,11 @@ function Dashboard() {
                                         })
                                       )
                                     }
-                                    className="placeholder:text-primary"
+                                    className="placeholder:text-secondary border-primary text-primary"
                                     placeholder="You're Name"
                                   />
                                   <Input
-                                    className="placeholder:text-primary"
+                                    className="placeholder:text-secondary border-primary text-primary "
                                     placeholder="You're Dev Role"
                                   />
                                 </div>
