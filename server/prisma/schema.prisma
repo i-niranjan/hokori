@@ -8,10 +8,45 @@ datasource db {
 }
 
 model User {
-  id        String @id @default(uuid())
-  userName  String @unique
-  email     String @unique
+  id        String    @id @default(uuid())
+  userName  String    @unique
+  email     String    @unique
   firstName String
   lastName  String
   password  String
+  Project   Project[]
+  Skill     Skill[]
+  Profile   Profile?
+}
+
+model Project {
+  id        String @id @default(cuid())
+  title     String
+  desc      String
+  link      String
+  thumbnail String
+  userId    String
+  user      User   @relation(fields: [userId], references: [id])
+}
+
+model Skill {
+  id     String  @id @default(cuid())
+  name   String
+  icon   String?
+  userId String
+  user   User    @relation(fields: [userId], references: [id])
+}
+
+model Profile {
+  id        String  @id @default(cuid())
+  userId    String  @unique
+  name      String
+  avatarUrl String
+  title     String
+  bio       String
+  instagram String?
+  github    String?
+  twitter   String?
+  linkedin  String?
+  user      User    @relation(fields: [userId], references: [id])
 }

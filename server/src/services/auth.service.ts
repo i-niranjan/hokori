@@ -1,8 +1,7 @@
 import { hashSync, compare } from "bcrypt-ts";
-import { PrismaClient } from "@prisma/client";
-import { isEmail } from "../utils/helper";
 
-const prisma = new PrismaClient();
+import { isEmail } from "../utils/helper";
+import prisma from "../lib/prisma";
 
 export class AuthService {
   async signUp({
