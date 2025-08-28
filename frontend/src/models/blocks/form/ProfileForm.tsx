@@ -30,21 +30,14 @@ import {
 } from "@/components/ui/form";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { eventAddSchema } from "@/lib/schema";
+import { AddProfile } from "@/services/component/profileService";
+import { toast } from "sonner";
 
 interface ProfileFormProps {
   open: boolean;
   onOpenChange(open: boolean): void;
 }
-
-const eventAddSchema = z.object({
-  profileImageUrl: z.string().optional(),
-  fullName: z.string().min(2).max(50),
-  role: z.string(),
-  instagramUrl: z.string().url().optional(),
-  githubUrl: z.string().url().optional(),
-  linkedInUrl: z.string().url().optional(),
-  xUrl: z.string().url().optional(),
-});
 
 export default function ProfileForm({ open, onOpenChange }: ProfileFormProps) {
   const [hasProfileImage, setHasProfileImage] = useState(false);
@@ -61,8 +54,13 @@ export default function ProfileForm({ open, onOpenChange }: ProfileFormProps) {
     },
   });
 
-  function onSubmit(values: z.infer<typeof eventAddSchema>) {
-    console.log(values);
+  async function onSubmit(values: z.infer<typeof eventAddSchema>) {
+    try {
+      const result = await AddProfile(values);
+      toast("Profile Added");
+    } catch (error) {
+      toast("Something went wrong");
+    }
   }
 
   const socialPlatforms = [
