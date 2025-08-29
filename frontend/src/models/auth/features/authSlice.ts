@@ -2,13 +2,12 @@ import type { UserSchema, Login } from "@/models/auth/authTypes";
 import axios from "axios";
 import { toast } from "sonner";
 import { createAppSlice } from "@/app/createAppSlice";
+import api from "../refresh";
 
-const API_URL = import.meta.env.VITE_API_URL;
 interface UserState {
-  firstName: String;
-  lastName: String;
-  email: String;
-  userName: String;
+  firstName: string | null;
+  lastName: string | null;
+  email: string | null;
 }
 interface AuthState {
   loading: boolean;
@@ -16,18 +15,27 @@ interface AuthState {
   token: string | null;
 }
 
+const initialUser = {
+  email: localStorage.getItem("email") ?? null,
+  firstName: localStorage.getItem("firstName") ?? null,
+  lastName: localStorage.getItem("lastName") ?? null,
+};
+
 const authSlice = createAppSlice({
   name: "auth",
   initialState: {
-    user: null,
+    user: initialUser,
     loading: false,
     token: localStorage.getItem("token") ?? null,
   } satisfies AuthState as AuthState,
   reducers: (create) => ({
+    tokenRefreshed: create.reducer((state, action: { payload: string }) => {
+      state.token = action.payload;
+    }),
     signup: create.asyncThunk(
       async (data: UserSchema, { rejectWithValue }) => {
         try {
-          const res = await axios.post(`${API_URL}/auth/signup`, data);
+          const res = await api.post(`/auth/signup`, data);
           return res.data;
         } catch (error: any) {
           console.log("Caught error:", error.response?.data);
@@ -62,7 +70,7 @@ const authSlice = createAppSlice({
     login: create.asyncThunk(
       async (data: Login, { rejectWithValue }) => {
         try {
-          const res = await axios.post(`${API_URL}/auth/login`, data);
+          const res = await api.post(`/auth/login`, data);
           return res.data;
         } catch (error: any) {
           console.log("Caught error:", error.response?.data);

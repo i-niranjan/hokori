@@ -21,15 +21,13 @@ import {
   IconUser,
 } from "@tabler/icons-react";
 import { useNavigate } from "react-router";
-import { useAppDispatch } from "@/app/store";
+import { useAppDispatch, type RootState } from "@/app/store";
 import { logout } from "@/models/auth/features/authSlice";
+import { useSelector } from "react-redux";
 
 export default function Navbar() {
   const dispatch = useAppDispatch();
-  const [name, setName] = useState(
-    `${localStorage.getItem("firstName")} ${localStorage.getItem("lastName")}`
-  );
-  const [email, setEmail] = useState(`${localStorage.getItem("email")}`);
+  const user = useSelector((state: RootState) => state.auth.user);
 
   const navigate = useNavigate();
   const handleLogOut = async () => {
@@ -67,8 +65,8 @@ export default function Navbar() {
             <AvatarFallback>CN</AvatarFallback>
           </Avatar>
           <div>
-            <p className="font-medium">{name}</p>
-            <p className="text-neutral-500 text-xs">{email}</p>
+            <p className="font-medium">{user?.firstName}</p>
+            <p className="text-neutral-500 text-xs">{user?.email}</p>
           </div>
           <div className="flex items-center">
             <DropdownMenu>

@@ -14,29 +14,9 @@ import AuthGuard from "./components/AuthGuard";
 import { Toaster } from "./components/ui/sonner";
 
 function App() {
-  // const [isLoggedIn, setLoggedIn] = useState(false);
-  // const dispatch = useAppDispatch();
-  // const token = useSelector((state: RootState) => state.auth.token);
-  // useEffect(() => {
-  //   const tokenCheck = async (token: string) => {
-  //     try {
-  //       const expired = isTokenExpired(token);
-  //       if (!expired) {
-  //         setLoggedIn(true);
-  //       } else {
-  //         toast("Token Expired, Logging out");
-  //         await dispatch(logout()).unwrap();
-  //       }
-  //     } catch (error) {
-  //       console.error("Invalid token:", error);
-  //     }
-  //   };
-  //   if (token) tokenCheck(token);
-  // }, [token]);
-
   return (
     <>
-      <ErrorBoundary>
+      <ErrorBoundary showDetails={true}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route element={<AuthGuard />}>
