@@ -73,7 +73,7 @@ const authSlice = createAppSlice({
           const res = await api.post(`/auth/login`, data);
           return res.data;
         } catch (error: any) {
-          console.log("Caught error:", error.response?.data);
+          console.log("Caught error:", error);
 
           return rejectWithValue(
             error.response?.data?.message || "Login Failed"

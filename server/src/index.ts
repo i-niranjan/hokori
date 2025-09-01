@@ -1,12 +1,19 @@
+import "dotenv/config";
 import express, { Request, Response } from "express";
 import cors from "cors";
 import { errorHandler } from "./middleware/errorHandler";
 import authRoutes from "./routes/auth.routes";
 import profileRoutes from "./routes/profile.routes";
+import imageKitRoutes from "./routes/imagekit.routes";
 const PORT = process.env.PORT || 3003;
 const app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL,
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 app.listen(PORT, () => {
@@ -17,7 +24,8 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 app.use("/auth", authRoutes);
-app.use("/profile", profileRoutes);
+app.use("/image-kit", imageKitRoutes);
+app.use("/component/profile", profileRoutes);
 
 app.use(errorHandler);
 

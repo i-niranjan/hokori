@@ -41,8 +41,11 @@ function Sidebar() {
             Menu
           </p>
           <div className="flex flex-col gap-1">
-            {menu.map((item) => (
-              <div className="flex gap-2 items-center text-primary px-2  active:text-primary hover:text-primary hover:bg-accent py-2  rounded-xl cursor-pointer">
+            {menu.map((item, index) => (
+              <div
+                key={index}
+                className="flex gap-2 items-center text-primary px-2  active:text-primary hover:text-primary hover:bg-accent py-2  rounded-xl cursor-pointer"
+              >
                 {<item.icon size={24} className="" />}
                 <a className="text-base font-semibold" href={item.url}>
                   {item.name}

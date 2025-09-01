@@ -8,14 +8,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Camera, User, Briefcase, Upload } from "lucide-react";
 import {
   IconBrandGithub,
   IconBrandInstagram,
   IconBrandLinkedin,
   IconBrandX,
+  IconLoader2,
   IconPin,
+  IconX,
 } from "@tabler/icons-react";
 import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
@@ -36,14 +38,24 @@ import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Label } from "@/components/ui/label";
 
+import {
+  ImageKitAbortError,
+  ImageKitInvalidRequestError,
+  ImageKitServerError,
+  ImageKitUploadNetworkError,
+  upload,
+} from "@imagekit/react";
+import axios from "axios";
+import api from "@/models/auth/refresh";
+
 interface ProfileFormProps {
   open: boolean;
   onOpenChange(open: boolean): void;
 }
-
 export default function ProfileForm({ open, onOpenChange }: ProfileFormProps) {
   const [hasProfileImage, setHasProfileImage] = useState(false);
-  const [preview, setPreview] = useState("");
+  const [profileLoading, setProfileLoading] = useState(false);
+  const [preview, setPreview] = useState<{ url?: string; fieldId?: string }>();
 
   const form = useForm<z.infer<typeof eventAddSchema>>({
     resolver: zodResolver(eventAddSchema),
@@ -98,6 +110,47 @@ export default function ProfileForm({ open, onOpenChange }: ProfileFormProps) {
     },
   ] as const;
 
+  const handleUpload = async (
+    file: File,
+    fieldOnChange: (val: string) => void,
+    setPreview: (val: { url?: string; fieldId?: string }) => void
+  ) => {
+    try {
+      setProfileLoading(true);
+      const res = await api.get("/image-kit/auth");
+      const { expire, token, signature } = res.data;
+      const uploadResponse = await upload({
+        file,
+        fileName: file.name,
+        expire,
+        token,
+        signature,
+        publicKey: import.meta.env.VITE_IMAGEKIT_PUBLIC_KEY,
+        onProgress: (evt) => {
+          console.log("progress", (evt.loaded / evt.total) * 100);
+        },
+      });
+
+      console.log("Upload response:", uploadResponse);
+      if (!uploadResponse.url || !uploadResponse.fileId || !uploadResponse) {
+        return toast.error("Something went wrong while uploading");
+      }
+
+      setPreview({ url: uploadResponse.url, fieldId: uploadResponse.fileId });
+      fieldOnChange(uploadResponse.url);
+    } catch (error) {
+      console.log(error);
+      toast("Something went wrong");
+    } finally {
+      setProfileLoading(false);
+    }
+  };
+
+  const values = form.watch();
+  useEffect(() => {
+    console.log("Form values changed:", values);
+  }, [values]);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <Form {...form}>
@@ -130,15 +183,29 @@ export default function ProfileForm({ open, onOpenChange }: ProfileFormProps) {
                         <FormControl>
                           <div className="flex justify-center gap-4">
                             <div>
-                              <Avatar className="w-20 h-20 cursor-pointer">
-                                {preview ? (
-                                  <AvatarImage src={preview} />
-                                ) : (
-                                  <AvatarFallback>
-                                    <Upload />
-                                  </AvatarFallback>
-                                )}
-                              </Avatar>
+                              <Label
+                                htmlFor="profileImage"
+                                className="cursor-pointer"
+                              >
+                                <div className="relative">
+                                  <Avatar className="w-20 h-20  cursor-pointer border">
+                                    {profileLoading ? (
+                                      <div className="w-full h-full flex items-center justify-center">
+                                        <IconLoader2 className="h-4 w-4 text-gray-500 animate-spin" />
+                                      </div>
+                                    ) : preview?.url ? (
+                                      <AvatarImage src={preview.url} />
+                                    ) : (
+                                      <AvatarFallback>
+                                        <Upload />
+                                      </AvatarFallback>
+                                    )}
+                                  </Avatar>
+                                  <button className="absolute -right-2 p-1  backdrop-blur-2xl cursor-pointer hover:scale-120 duration-150 transition-all  -top-1 rounded-full border">
+                                    <IconX className="size-4 text-purple-700" />
+                                  </button>
+                                </div>
+                              </Label>
                               <Input
                                 id="profileImage"
                                 type="file"
@@ -147,9 +214,11 @@ export default function ProfileForm({ open, onOpenChange }: ProfileFormProps) {
                                 onChange={(e) => {
                                   const file = e.target.files?.[0];
                                   if (file) {
-                                    setPreview(URL.createObjectURL(file));
-
-                                    field.onChange(e.target.files);
+                                    handleUpload(
+                                      file,
+                                      field.onChange,
+                                      setPreview
+                                    );
                                   }
                                 }}
                               />
