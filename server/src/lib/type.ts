@@ -1,12 +1,11 @@
 interface createProfile {
-  userId: string;
-  name: string;
-  avatarUrl: string;
-  title: string;
+  fullName: string;
+  profileImageUrl: string;
+  role: string;
   bio: string;
-  instagram?: string;
-  github?: string;
-  twitter?: string;
-  linkedin?: string;
+  instagramUrl?: string;
+  githubUrl?: string;
+  xUrl?: string;
+  linkedinUrl?: string;
 }
 export { createProfile };
