@@ -1,8 +1,9 @@
 import type { UserSchema, Login } from "@/models/auth/authTypes";
-import axios from "axios";
+
 import { toast } from "sonner";
 import { createAppSlice } from "@/app/createAppSlice";
 import api from "../refresh";
+import { jwtDecode } from "jwt-decode";
 
 interface UserState {
   firstName: string | null;
@@ -33,9 +34,11 @@ const authSlice = createAppSlice({
       state.token = action.payload;
     }),
     signup: create.asyncThunk(
-      async (data: UserSchema, { rejectWithValue }) => {
+      async (data: UserSchema, { dispatch, rejectWithValue }) => {
         try {
           const res = await api.post(`/auth/signup`, data);
+          const { token } = res.data;
+          scheduleAutoLogout(token, dispatch);
           return res.data;
         } catch (error: any) {
           console.log("Caught error:", error.response?.data);
@@ -68,9 +71,11 @@ const authSlice = createAppSlice({
       }
     ),
     login: create.asyncThunk(
-      async (data: Login, { rejectWithValue }) => {
+      async (data: Login, { dispatch, rejectWithValue }) => {
         try {
           const res = await api.post(`/auth/login`, data);
+          const { token } = res.data;
+          scheduleAutoLogout(token, dispatch);
           return res.data;
         } catch (error: any) {
           console.log("Caught error:", error);
@@ -148,6 +153,24 @@ const authSlice = createAppSlice({
     ),
   }),
 });
+
+function scheduleAutoLogout(token: string, dispatch: any) {
+  try {
+    const decoded: { exp: number } = jwtDecode(token);
+    const expiry = decoded.exp * 1000 - Date.now();
+
+    if (expiry > 0) {
+      setTimeout(() => {
+        dispatch(logout()); // use your slice logout
+      }, expiry);
+    } else {
+      dispatch(logout());
+    }
+  } catch (err) {
+    console.error("Invalid token:", err);
+    dispatch(logout());
+  }
+}
 
 export const { signup, login, logout } = authSlice.actions;
 export default authSlice.reducer;

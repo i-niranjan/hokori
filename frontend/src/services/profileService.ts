@@ -1,13 +1,14 @@
-import { eventAddSchema } from "@/lib/schema";
-import axios from "axios";
-
+import type { EventAddPayload } from "@/lib/schema";
 const API_URL = import.meta.env.VITE_API_URL;
 
-export async function AddProfile({ data }: any) {
+import api from "@/models/auth/refresh";
+
+export async function AddProfile(data: EventAddPayload) {
   try {
-    const result = await axios.post(`${API_URL}/component/profile/add`, data);
-    console.log(JSON.stringify(result, null, 2));
+    const result = await api.post(`${API_URL}/component/profile/add`, data);
+    return result;
   } catch (error) {
     console.log(error);
+    throw error;
   }
 }

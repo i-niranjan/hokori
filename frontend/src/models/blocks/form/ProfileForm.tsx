@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+
 import {
   Dialog,
   DialogClose,
@@ -8,8 +9,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useEffect, useState } from "react";
-import { Camera, User, Briefcase, Upload } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { User, Briefcase, Upload, Pen } from "lucide-react";
 import {
   IconBrandGithub,
   IconBrandInstagram,
@@ -25,7 +26,6 @@ import {
   Form,
   FormField,
   FormItem,
-  FormLabel,
   FormControl,
   FormDescription,
   FormMessage,
@@ -37,16 +37,12 @@ import { AddProfile } from "@/services/profileService";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Label } from "@/components/ui/label";
-
-import {
-  ImageKitAbortError,
-  ImageKitInvalidRequestError,
-  ImageKitServerError,
-  ImageKitUploadNetworkError,
-  upload,
-} from "@imagekit/react";
-import axios from "axios";
+import type { EventAddPayload } from "@/lib/schema";
+import { upload } from "@imagekit/react";
 import api from "@/models/auth/refresh";
+import { deletImage } from "@/services/imageKitService";
+import clsx from "clsx";
+import { Textarea } from "@/components/ui/textarea";
 
 interface ProfileFormProps {
   open: boolean;
@@ -55,13 +51,16 @@ interface ProfileFormProps {
 export default function ProfileForm({ open, onOpenChange }: ProfileFormProps) {
   const [hasProfileImage, setHasProfileImage] = useState(false);
   const [profileLoading, setProfileLoading] = useState(false);
+  const [removeLoading, setRemoveLoading] = useState(false);
   const [preview, setPreview] = useState<{ url?: string; fieldId?: string }>();
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  const form = useForm<z.infer<typeof eventAddSchema>>({
+  const form = useForm<EventAddPayload>({
     resolver: zodResolver(eventAddSchema),
     defaultValues: {
       profileImageUrl: "",
       fullName: "",
+      bio: "",
       role: "",
       instagramUrl: "",
       githubUrl: "",
@@ -70,12 +69,17 @@ export default function ProfileForm({ open, onOpenChange }: ProfileFormProps) {
     },
   });
 
+  const onError = (errors: any) => {
+    console.log("Form validation failed:", errors);
+  };
+
   async function onSubmit(values: z.infer<typeof eventAddSchema>) {
     try {
       const result = await AddProfile(values);
+
       toast("Profile Added");
     } catch (error) {
-      toast("Something went wrong");
+      toast.error("Something went wrong");
     }
   }
 
@@ -115,6 +119,8 @@ export default function ProfileForm({ open, onOpenChange }: ProfileFormProps) {
     fieldOnChange: (val: string) => void,
     setPreview: (val: { url?: string; fieldId?: string }) => void
   ) => {
+    console.log("handleUpload get called");
+
     try {
       setProfileLoading(true);
       const res = await api.get("/image-kit/auth");
@@ -146,16 +152,40 @@ export default function ProfileForm({ open, onOpenChange }: ProfileFormProps) {
     }
   };
 
-  const values = form.watch();
+  const removeImage = async (fieldOnChange: (val: string) => void) => {
+    if (!preview?.fieldId)
+      return toast.error(
+        "Something went wrong, if you persist this bug please report us"
+      );
+    setRemoveLoading(true);
+    try {
+      const result = await deletImage(preview?.fieldId);
+      setPreview({ url: undefined, fieldId: undefined });
+      fieldOnChange("");
+      if (inputRef.current) inputRef.current.value = "";
+      toast.success(result.message);
+    } catch (error) {
+      toast.error(
+        "Something went wrong, if you persist this bug please report us"
+      );
+    } finally {
+      setRemoveLoading(false);
+    }
+  };
   useEffect(() => {
-    console.log("Form values changed:", values);
-  }, [values]);
+    console.log(preview); // Logs after state update
+  }, [preview]);
+
+  const values = form.watch();
+  // useEffect(() => {
+  //   console.log("Form values changed:", values);
+  // }, [values]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
-          <DialogContent className="sm:max-w-[800px]">
+      <DialogContent className="sm:max-w-[800px]">
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit, onError)}>
             <DialogHeader className="border-b pb-3 mb-2">
               <DialogTitle> Complete Your Profile</DialogTitle>
               <DialogDescription>
@@ -185,7 +215,10 @@ export default function ProfileForm({ open, onOpenChange }: ProfileFormProps) {
                             <div>
                               <Label
                                 htmlFor="profileImage"
-                                className="cursor-pointer"
+                                className={clsx(
+                                  "cursor-pointer",
+                                  preview?.url && "cursor-none"
+                                )}
                               >
                                 <div className="relative">
                                   <Avatar className="w-20 h-20  cursor-pointer border">
@@ -201,16 +234,33 @@ export default function ProfileForm({ open, onOpenChange }: ProfileFormProps) {
                                       </AvatarFallback>
                                     )}
                                   </Avatar>
-                                  <button className="absolute -right-2 p-1  backdrop-blur-2xl cursor-pointer hover:scale-120 duration-150 transition-all  -top-1 rounded-full border">
-                                    <IconX className="size-4 text-purple-700" />
-                                  </button>
+                                  {preview?.fieldId && (
+                                    <button
+                                      onClick={() =>
+                                        removeImage(field.onChange)
+                                      }
+                                      className="absolute z-50 -right-2 p-1  backdrop-blur-2xl cursor-pointer hover:scale-120 duration-150 transition-all  -top-1 rounded-full border"
+                                    >
+                                      {removeLoading ? (
+                                        <IconLoader2 className="h-4 w-4 text-gray-500 animate-spin" />
+                                      ) : (
+                                        <IconX className="size-4 text-purple-700" />
+                                      )}
+                                    </button>
+                                  )}
                                 </div>
                               </Label>
+
                               <Input
+                                ref={inputRef}
+                                disabled={!!preview?.url}
                                 id="profileImage"
                                 type="file"
                                 accept="image/*"
-                                className="hidden"
+                                className={clsx(
+                                  "hidden",
+                                  preview?.url && "pointer-events-none"
+                                )}
                                 onChange={(e) => {
                                   const file = e.target.files?.[0];
                                   if (file) {
@@ -287,7 +337,7 @@ export default function ProfileForm({ open, onOpenChange }: ProfileFormProps) {
               </div>
 
               {/* RIGHT SIDE */}
-              <div className="bg-white/10 backdrop-blur-lg border rounded-2xl p-6 ">
+              <div className="bg-white/10 backdrop-blur-lg border  rounded-2xl p-6 ">
                 <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
                   <div className="w-6 h-6 rounded-lg bg-gradient-to-r from-pink-500 to-orange-500 flex items-center justify-center">
                     <IconPin className={`w-4 h-4 text-white`} />
@@ -335,6 +385,34 @@ export default function ProfileForm({ open, onOpenChange }: ProfileFormProps) {
                   })}
                 </div>
               </div>
+
+              <div className="col-span-2 ">
+                {/* Bio */}
+                <FormField
+                  control={form.control}
+                  name="bio"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <div className="relative">
+                          <div className="absolute left-3 top-1/2 transform -translate-y-1/2 z-10">
+                            <Pen className="w-4 h-4 text-gray-400" />
+                          </div>
+                          <Textarea
+                            placeholder="I am a pull stack dev.."
+                            className="w-full pl-10 pr-4 py-3 shadow-none h-13 focus:border-blue-500"
+                            {...field}
+                          />
+                        </div>
+                      </FormControl>
+                      <FormDescription>
+                        Write somethn abt you're self
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
             </div>
 
             <DialogFooter>
@@ -343,9 +421,9 @@ export default function ProfileForm({ open, onOpenChange }: ProfileFormProps) {
               </DialogClose>
               <Button type="submit">Save changes</Button>
             </DialogFooter>
-          </DialogContent>
-        </form>
-      </Form>
+          </form>
+        </Form>
+      </DialogContent>
     </Dialog>
   );
 }
