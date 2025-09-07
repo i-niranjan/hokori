@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { createAppSlice } from "@/app/createAppSlice";
 import api from "../refresh";
 import { jwtDecode } from "jwt-decode";
+import axios from "axios";
 
 interface UserState {
   firstName: string | null;
@@ -32,14 +33,15 @@ const authSlice = createAppSlice({
   reducers: (create) => ({
     tokenRefreshed: create.reducer((state, action: { payload: string }) => {
       state.token = action.payload;
+      localStorage.setItem("token", action.payload);
     }),
     signup: create.asyncThunk(
-      async (data: UserSchema, { dispatch, rejectWithValue }) => {
+      async (data: UserSchema, { rejectWithValue }) => {
         try {
           const res = await api.post(`/auth/signup`, data);
-          const { token } = res.data;
-          scheduleAutoLogout(token, dispatch);
-          return res.data;
+          const token = res.data.accessToken ?? res.data.token;
+
+          return { ...res.data, token };
         } catch (error: any) {
           console.log("Caught error:", error.response?.data);
 
@@ -60,23 +62,23 @@ const authSlice = createAppSlice({
         fulfilled: (state, action) => {
           state.loading = false;
           const { message, token, user } = action.payload;
-          state.user = user;
-          state.token = token;
+          state.user = user ?? null;
+          state.token = token ?? null;
           localStorage.setItem("token", token);
           localStorage.setItem("email", user.email);
           localStorage.setItem("firstName", user.firstName);
           localStorage.setItem("lastName", user.lastName);
-          toast(message);
+          if (message) toast(message);
         },
       }
     ),
     login: create.asyncThunk(
-      async (data: Login, { dispatch, rejectWithValue }) => {
+      async (data: Login, { rejectWithValue }) => {
         try {
           const res = await api.post(`/auth/login`, data);
-          const { token } = res.data;
-          scheduleAutoLogout(token, dispatch);
-          return res.data;
+          const token = res.data.accessToken ?? res.data.token;
+
+          return { ...res.data, token };
         } catch (error: any) {
           console.log("Caught error:", error);
 
@@ -95,27 +97,24 @@ const authSlice = createAppSlice({
           toast.error(action.payload as string);
         },
         fulfilled: (state, action) => {
+          state.loading = false;
           const { message, token, user } = action.payload;
-          state.user = user;
-          state.token = token;
+          state.user = user ?? null;
+          state.token = token ?? null;
           localStorage.setItem("token", token);
           localStorage.setItem("email", user.email);
           localStorage.setItem("firstName", user.firstName);
           localStorage.setItem("lastName", user.lastName);
-          toast(message);
+          if (message) toast(message);
         },
       }
     ),
     logout: create.asyncThunk(
       async (_, { rejectWithValue }) => {
         try {
-          // Optional: Call logout API endpoint if your backend requires it
-          // const token = localStorage.getItem("token");
-          // if (token) {
-          //   await axios.post(`${API_URL}/auth/logout`, {}, {
-          //     headers: { Authorization: `Bearer ${token}` }
-          //   });
-          // }
+          console.log("executed");
+
+          await api.post(`/auth/logout`);
 
           return { message: "Logged out successfully" };
         } catch (error: any) {
@@ -130,14 +129,11 @@ const authSlice = createAppSlice({
         },
         rejected: (state) => {
           state.loading = false;
-          // Clear state and localStorage even on rejection
+
           state.user = null;
           state.token = null;
-          localStorage.removeItem("token");
-          localStorage.removeItem("email");
-          localStorage.removeItem("firstName");
-          localStorage.removeItem("lastName");
-          toast.error("Logout failed, but you've been logged out locally");
+
+          toast.error("Logout failed");
         },
         fulfilled: (state, action) => {
           state.loading = false;
@@ -154,23 +150,5 @@ const authSlice = createAppSlice({
   }),
 });
 
-function scheduleAutoLogout(token: string, dispatch: any) {
-  try {
-    const decoded: { exp: number } = jwtDecode(token);
-    const expiry = decoded.exp * 1000 - Date.now();
-
-    if (expiry > 0) {
-      setTimeout(() => {
-        dispatch(logout()); // use your slice logout
-      }, expiry);
-    } else {
-      dispatch(logout());
-    }
-  } catch (err) {
-    console.error("Invalid token:", err);
-    dispatch(logout());
-  }
-}
-
-export const { signup, login, logout } = authSlice.actions;
+export const { signup, login, logout, tokenRefreshed } = authSlice.actions;
 export default authSlice.reducer;

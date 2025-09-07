@@ -1,8 +1,9 @@
 import { GiShintoShrine } from "react-icons/gi";
-import { Outlet, useNavigate } from "react-router";
+import { Outlet } from "react-router";
 import { signup, login } from "../features/authSlice";
 import type { Login, UserSchema } from "../authTypes";
 import { useAppDispatch } from "@/app/store";
+import { navigate } from "@/lib/navigation";
 
 export type AuthContextType = {
   handleLogin: (data: Login) => void;
@@ -11,7 +12,6 @@ export type AuthContextType = {
 
 function Auth() {
   const dispatch = useAppDispatch();
-  const navigate = useNavigate();
 
   const handleLogin = async (data: Login) => {
     try {

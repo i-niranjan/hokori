@@ -1,7 +1,7 @@
 import ErrorBoundary from "./components/error-boundary";
 
 import Dashboard from "./models/dashboard/pages/dashboard";
-import { Routes, Route, Navigate } from "react-router";
+import { Routes, Route, Navigate, useNavigate } from "react-router";
 import Template from "@/models/template/pages/Template";
 import Insights from "./models/insights/pages/Insights";
 import Settings from "./models/settings/pages/Settings";
@@ -12,8 +12,10 @@ import MainLayout from "./MainLayout";
 import { LoginForm } from "./models/auth/components/login-form";
 import AuthGuard from "./components/AuthGuard";
 import { Toaster } from "./components/ui/sonner";
+import { useEffect } from "react";
+import { setNavigator } from "./lib/navigation";
 
-function App() {
+function AppRoutes() {
   return (
     <>
       <ErrorBoundary showDetails={true}>
@@ -39,5 +41,16 @@ function App() {
     </>
   );
 }
+function AppInitializer() {
+  const nav = useNavigate();
 
-export default App;
+  useEffect(() => {
+    setNavigator(nav);
+  }, [nav]);
+
+  return <AppRoutes />;
+}
+
+export default function App() {
+  return <AppInitializer />;
+}
