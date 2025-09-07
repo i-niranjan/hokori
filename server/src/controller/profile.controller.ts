@@ -3,7 +3,7 @@ import { Request, Response, NextFunction } from "express";
 
 export const profileController = {
   create: async (req: Request, res: Response, next: NextFunction) => {
-    const userId = req.userId!;
+    const userId = req.user.id;
     const data = req.body;
     try {
       const result = await profileService.addProfile(data, userId);

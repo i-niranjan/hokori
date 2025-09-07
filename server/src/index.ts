@@ -5,6 +5,8 @@ import { errorHandler } from "./middleware/errorHandler";
 import authRoutes from "./routes/auth.routes";
 import profileRoutes from "./routes/profile.routes";
 import imageKitRoutes from "./routes/imagekit.routes";
+import cookieParser from "cookie-parser";
+
 const PORT = process.env.PORT || 3003;
 const app = express();
 
@@ -15,6 +17,7 @@ app.use(
   })
 );
 app.use(express.json());
+app.use(cookieParser());
 
 app.listen(PORT, () => {
   console.log(`😼 Server is running at http://localhost:${PORT}`);
