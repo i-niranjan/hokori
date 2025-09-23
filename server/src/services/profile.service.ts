@@ -2,8 +2,6 @@ import prisma from "../lib/prisma";
 import { createProfile } from "../lib/type";
 export const profileService = {
   addProfile: async (data: createProfile, userId: string) => {
-    console.log(JSON.stringify(data, null, 2));
-
     if (!data) throw new Error("Invalid Input");
     const profile = await prisma.profile.create({
       data: {
@@ -20,5 +18,11 @@ export const profileService = {
     });
     return profile;
   },
-  editProfile: async () => {},
+  getProfile: async (userId: string) => {
+    const profile = await prisma.profile.findUnique({
+      where: { userId: userId },
+    });
+
+    return profile;
+  },
 };

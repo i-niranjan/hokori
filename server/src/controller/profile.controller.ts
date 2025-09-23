@@ -14,4 +14,15 @@ export const profileController = {
       next(error);
     }
   },
+  getUnique: async (req: Request, res: Response, next: NextFunction) => {
+    const userId = req.user.id;
+    try {
+      const profile = await profileService.getProfile(userId);
+      res.status(200).json({
+        data: profile,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
 };
