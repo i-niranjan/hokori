@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 
 export const errorHandler = (
-  err: unknown,
+  err: any,
   req: Request,
   res: Response,
   next: NextFunction
@@ -12,7 +12,8 @@ export const errorHandler = (
     res.status(500).json({ message: err.message });
   } else {
     console.log(err);
-
-    res.status(500).json({ message: "Something went wrong" });
+    res.status(err?.status || 500).json({
+      message: err?.message || "Something went wrong",
+    });
   }
 };
