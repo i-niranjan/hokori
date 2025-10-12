@@ -11,7 +11,8 @@ import type { RootState } from "@/app/store";
 
 export default function HomeNavbar() {
   const token = useSelector((state: RootState) => state.auth.token);
-  const isLoggedIn = token && !isTokenExpired(token);
+
+  const isLoggedIn = token ? !isTokenExpired(token) : false;
   const navigate = useNavigate();
   return (
     <nav className="w-full h-24 p-3 ">

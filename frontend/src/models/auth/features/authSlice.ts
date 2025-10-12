@@ -93,6 +93,7 @@ const authSlice = createAppSlice({
         },
         rejected: (state, action) => {
           state.loading = false;
+          console.log("FROm Payload", action.payload);
 
           toast.error(action.payload as string);
         },
