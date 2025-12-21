@@ -43,31 +43,50 @@ import api from "@/models/auth/refresh";
 import { deletImage } from "@/services/imageKitService";
 import clsx from "clsx";
 import { Textarea } from "@/components/ui/textarea";
+import { type ProfileData } from "@/types/ProfileType";
+import { useAppSelector } from "@/lib/hooks";
 
 interface ProfileFormProps {
   open: boolean;
   onOpenChange(open: boolean): void;
+  initialData?: ProfileData;
 }
-export default function ProfileForm({ open, onOpenChange }: ProfileFormProps) {
+
+export default function ProfileForm({
+  open,
+  onOpenChange,
+  initialData,
+}: ProfileFormProps) {
   const [hasProfileImage, setHasProfileImage] = useState(false);
   const [profileLoading, setProfileLoading] = useState(false);
   const [removeLoading, setRemoveLoading] = useState(false);
   const [preview, setPreview] = useState<{ url?: string; fieldId?: string }>();
   const inputRef = useRef<HTMLInputElement>(null);
-
+  const userId = useAppSelector((state) => state.auth.user?.userId);
   const form = useForm<EventAddPayload>({
     resolver: zodResolver(eventAddSchema),
     defaultValues: {
-      profileImageUrl: "",
-      fullName: "",
-      bio: "",
-      role: "",
-      instagramUrl: "",
-      githubUrl: "",
-      linkedInUrl: "",
-      xUrl: "",
+      profileImageUrl: initialData?.avatarUrl || "",
+      avatarFileId: initialData?.avatarFileId || "",
+      fullName: initialData?.name || "",
+      bio: initialData?.bio || "",
+      role: initialData?.bio || "",
+      instagramUrl: initialData?.instagram || "",
+      githubUrl: initialData?.github || "",
+      linkedInUrl: initialData?.linkedin || "",
+      xUrl: initialData?.twitter || "",
     },
   });
+
+  useEffect(() => {
+    if (initialData?.avatarUrl) {
+      setPreview({
+        url: initialData.avatarUrl,
+        fieldId: initialData.avatarFileId,
+      });
+      setHasProfileImage(true);
+    }
+  }, [initialData]);
 
   const onError = (errors: any) => {
     console.log("Form validation failed:", errors);
@@ -79,7 +98,7 @@ export default function ProfileForm({ open, onOpenChange }: ProfileFormProps) {
 
       toast("Profile Added");
     } catch (error) {
-      toast.error("Something went wrong");
+      toast.error("Something went wrong while adding a profile");
     }
   }
 
@@ -131,6 +150,7 @@ export default function ProfileForm({ open, onOpenChange }: ProfileFormProps) {
         expire,
         token,
         signature,
+        folder: `/user/${userId}/profile`,
         publicKey: import.meta.env.VITE_IMAGEKIT_PUBLIC_KEY,
         onProgress: (evt) => {
           console.log("progress", (evt.loaded / evt.total) * 100);
@@ -144,9 +164,10 @@ export default function ProfileForm({ open, onOpenChange }: ProfileFormProps) {
 
       setPreview({ url: uploadResponse.url, fieldId: uploadResponse.fileId });
       fieldOnChange(uploadResponse.url);
+      form.setValue("avatarFileId", uploadResponse.fileId);
     } catch (error) {
       console.log(error);
-      toast("Something went wrong");
+      toast("Something went wrong while deleting a profile image");
     } finally {
       setProfileLoading(false);
     }
@@ -172,9 +193,6 @@ export default function ProfileForm({ open, onOpenChange }: ProfileFormProps) {
       setRemoveLoading(false);
     }
   };
-  useEffect(() => {
-    console.log(preview); // Logs after state update
-  }, [preview]);
 
   const values = form.watch();
   // useEffect(() => {

@@ -1,6 +1,4 @@
-import React, { useRef, useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-import type { RootState } from "@/app/store";
+import { useRef } from "react";
 import { BiLogoPostgresql, BiLogoMongodb } from "react-icons/bi";
 import {
   IconBrandGithub,
@@ -11,11 +9,12 @@ import {
   IconBrandTwitter,
 } from "@tabler/icons-react";
 import { Terminal } from "lucide-react";
-import { motion, useAnimationFrame } from "motion/react";
+import { useAnimationFrame } from "motion/react";
 import { Marquee } from "@/components/magicui/marquee";
+import { useAppSelector } from "@/lib/hooks";
 
 function PersonalInfoPreview() {
-  const blocks = useSelector((state: RootState) => state.profile.blocks);
+  const blocks = useAppSelector((state) => state.profile.blocks);
   const baseVelocity = -60;
 
   const ref = useRef<HTMLDivElement>(null);

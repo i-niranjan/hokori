@@ -1,13 +1,13 @@
 import { Navigate, Outlet } from "react-router-dom";
-import { useSelector } from "react-redux";
 import { useEffect } from "react";
 import { isTokenExpired } from "@/helpers/helper";
-import { type RootState, useAppDispatch } from "@/app/store";
+import { useAppDispatch } from "@/app/store";
 import { logout } from "@/models/auth/features/authSlice";
 import { toast } from "sonner";
+import { useAppSelector } from "@/lib/hooks";
 
 const AuthGuard = () => {
-  const token = useSelector((state: RootState) => state.auth.token);
+  const token = useAppSelector((state) => state.auth.token);
   const dispatch = useAppDispatch();
 
   useEffect(() => {

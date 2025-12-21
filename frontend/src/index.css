@@ -5,7 +5,7 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  --color-primary: #006d77;
+  --color-primary: #0c0404;
   --color-secondary: #83c5be;
   --color-background: #edf6f9;
   --color-accent: #ffddd2;
@@ -27,7 +27,7 @@
   --color-card-foreground: var(--card-foreground);
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
-  --color-primary: #7c3aed;
+  --color-primary: #100c08;
   --color-primary-foreground: var(--primary-foreground);
   --color-secondary: #6b7280;
   --color-secondary-foreground: var(--secondary-foreground);

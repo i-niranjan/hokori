@@ -21,13 +21,14 @@ import {
   IconUser,
 } from "@tabler/icons-react";
 import { useNavigate } from "react-router";
-import { useAppDispatch, type RootState } from "@/app/store";
+import { useAppDispatch } from "@/app/store";
 import { logout } from "@/models/auth/features/authSlice";
-import { useSelector } from "react-redux";
+
+import { useAppSelector } from "@/lib/hooks";
 
 export default function Navbar() {
   const dispatch = useAppDispatch();
-  const user = useSelector((state: RootState) => state.auth.user);
+  const user = useAppSelector((state) => state.auth.user);
 
   const navigate = useNavigate();
   const handleLogOut = async () => {

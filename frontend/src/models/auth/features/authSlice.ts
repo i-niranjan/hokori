@@ -3,10 +3,9 @@ import type { UserSchema, Login } from "@/models/auth/authTypes";
 import { toast } from "sonner";
 import { createAppSlice } from "@/app/createAppSlice";
 import api from "../refresh";
-import { jwtDecode } from "jwt-decode";
-import axios from "axios";
 
 interface UserState {
+  userId: string | null;
   firstName: string | null;
   lastName: string | null;
   email: string | null;
@@ -18,6 +17,7 @@ interface AuthState {
 }
 
 const initialUser = {
+  userId: localStorage.getItem("userId") ?? null,
   email: localStorage.getItem("email") ?? null,
   firstName: localStorage.getItem("firstName") ?? null,
   lastName: localStorage.getItem("lastName") ?? null,
@@ -62,9 +62,18 @@ const authSlice = createAppSlice({
         fulfilled: (state, action) => {
           state.loading = false;
           const { message, token, user } = action.payload;
-          state.user = user ?? null;
+          state.user = user
+            ? {
+                userId: user.id,
+                firstName: user.firstName ?? null,
+                lastName: user.lastName ?? null,
+                email: user.email ?? null,
+              }
+            : null;
+
           state.token = token ?? null;
           localStorage.setItem("token", token);
+          localStorage.setItem("userId", user.id);
           localStorage.setItem("email", user.email);
           localStorage.setItem("firstName", user.firstName);
           localStorage.setItem("lastName", user.lastName);
@@ -100,9 +109,20 @@ const authSlice = createAppSlice({
         fulfilled: (state, action) => {
           state.loading = false;
           const { message, token, user } = action.payload;
-          state.user = user ?? null;
+          console.log("PAYLOAD USER", JSON.stringify(user, null, 2));
+
+          state.user = user
+            ? {
+                userId: user.id,
+                firstName: user.firstName ?? null,
+                lastName: user.lastName ?? null,
+                email: user.email ?? null,
+              }
+            : null;
+
           state.token = token ?? null;
           localStorage.setItem("token", token);
+          localStorage.setItem("userId", user.id);
           localStorage.setItem("email", user.email);
           localStorage.setItem("firstName", user.firstName);
           localStorage.setItem("lastName", user.lastName);
@@ -113,8 +133,6 @@ const authSlice = createAppSlice({
     logout: create.asyncThunk(
       async (_, { rejectWithValue }) => {
         try {
-          console.log("executed");
-
           await api.post(`/auth/logout`);
 
           return { message: "Logged out successfully" };
@@ -141,6 +159,7 @@ const authSlice = createAppSlice({
           state.user = null;
           state.token = null;
           localStorage.removeItem("token");
+          localStorage.removeItem("userId");
           localStorage.removeItem("email");
           localStorage.removeItem("firstName");
           localStorage.removeItem("lastName");

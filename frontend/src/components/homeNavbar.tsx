@@ -1,16 +1,13 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import React from "react";
 import HokoriLogo from "./hokori-logo";
 
 import { Button } from "../components/ui/button";
-import { IconArrowUpRight } from "@tabler/icons-react";
 import { Link, useNavigate } from "react-router";
-import { useSelector } from "react-redux";
 import { isTokenExpired } from "@/helpers/helper";
-import type { RootState } from "@/app/store";
+import { useAppSelector } from "@/lib/hooks";
 
 export default function HomeNavbar() {
-  const token = useSelector((state: RootState) => state.auth.token);
+  const token = useAppSelector((state) => state.auth.token);
 
   const isLoggedIn = token ? !isTokenExpired(token) : false;
   const navigate = useNavigate();

@@ -1,198 +1,173 @@
-import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
+import { AnimatePresence, motion } from "motion/react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import {
   IconBrandGithub,
   IconBrandInstagram,
   IconBrandLinkedin,
   IconBrandX,
-  IconCamera,
+  IconCirclePlus,
   IconEdit,
-  IconGripVertical,
-  IconX,
+  IconPlus,
 } from "@tabler/icons-react";
-import { AnimatePresence, motion } from "motion/react";
-import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { useForm } from "react-hook-form";
-import { Edit, Save } from "lucide-react";
+import { getInitials } from "@/helpers/helper";
 import ProfileForm from "../form/ProfileForm";
 import api from "@/models/auth/refresh";
-import { data } from "react-router";
-import { toast } from "sonner";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { getInitials } from "@/helpers/helper";
-
-type Input = {
-  fullName: string;
-  devRole: string;
-};
+import { BorderBeam } from "@/components/ui/border-beam";
+import type { ProfileData } from "@/types/ProfileType";
 
 function PersonalInfo() {
-  const [state, setState] = useState(false);
-  const [loadingProfileData, setLoadingProfileData] = useState(true);
+  const [profileData, setProfileData] = useState<ProfileData>();
+  const [loading, setLoading] = useState(true);
   const [openForm, setOpenForm] = useState(false);
-  const [profileData, setProfileData] = useState<any>();
 
   useEffect(() => {
-    if (state === true) {
-      (async () => {
-        try {
-          const result = await api.get("/component/profile/getProfile");
-          console.log(JSON.stringify(result.data.data, null, 2));
-
-          setProfileData(result.data.data);
-        } catch (error) {
-          toast.error("Something went wrong, Please Try Again");
-        } finally {
-          setLoadingProfileData(false);
-        }
-      })();
-    }
-  }, [state]);
+    (async () => {
+      try {
+        const result = await api.get("/component/profile/getProfile");
+        setProfileData(result.data.data || null);
+      } catch (error) {
+        toast.error("Something went wrong, Please Try Again");
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
 
   return (
     <>
-      <div className="h-max  w-150 rounded-2xl border  shadow-xs flex overflow-hidden">
-        <div className="flex flex-col gap-3  w-full px-3 py-3 ">
+      <div className="h-max w-150 rounded-2xl border shadow-xs flex overflow-hidden">
+        <div className="flex flex-col gap-3 w-full px-3 py-3">
           <span className="text-xl text-black font-semibold">
             Profile Information
           </span>
-          <div className="flex gap-2 ">
-            {!state && (
-              <Button
-                onClick={() => setState(true)}
-                className=""
-                variant={"outline"}
-              >
-                <IconEdit /> View / Edit
-              </Button>
-            )}
-            {state && (
-              <div className="flex gap-2">
-                <Button
-                  onClick={() => setState(false)}
-                  className=""
-                  variant={"outline"}
-                >
-                  <IconX /> Cancel
-                </Button>
-                <Button
-                  onClick={() => {
-                    setOpenForm(true);
-                  }}
-                >
-                  <Edit /> Edit
-                </Button>
-              </div>
-            )}
-          </div>
-          <AnimatePresence>
-            {state && (
+
+          {loading ? (
+            <ProfileDataSkeleton />
+          ) : profileData ? (
+            <AnimatePresence>
               <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: "auto", opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
                 transition={{ duration: 0.4, ease: "easeInOut" }}
                 className="overflow-hidden"
               >
-                <div className="h-max border-t py-3 px-2 space-y-3">
-                  {loadingProfileData ? (
-                    <ProfileDataSkeleton />
-                  ) : (
-                    <div className="bg-accent px-4 py-2 rounded-xl">
-                      <div className="flex items-center space-x-6 border-b pb-2">
-                        <div>
-                          <Avatar>
-                            <AvatarImage src={profileData?.avatarUrl} />
-                            <AvatarFallback>
-                              {getInitials(profileData?.name)}
-                            </AvatarFallback>
-                          </Avatar>
-                        </div>
-
-                        {/* <div
-                          className="w-[50px] h-[50px] rounded-full bg-cover bg-top"
-                          style={{
-                            backgroundImage: `url(${profileData.avatarUrl})`,
-                          }}
-                          title={profileData.name}
-                        /> */}
-                        <div className="flex flex-col w-full">
-                          <div className="flex flex-col ">
-                            <span className="text-black font-semibold">
-                              {profileData.name}
-                            </span>
-                            <span className="text-sm text-neutral-800">
-                              {profileData.title}
-                            </span>
-                          </div>
-
-                          <span className="text-neutral-600 italic text-sm mt-1">
-                            " {profileData.bio} "
-                          </span>
-                        </div>
-                      </div>
-                      <div className="flex gap-2 py-2">
-                        <Button
-                          disabled={!profileData?.instagram}
-                          variant={"outline"}
-                          size={"icon"}
-                        >
-                          <IconBrandInstagram className="size-5" />
-                        </Button>
-
-                        <Button
-                          disabled={!profileData?.github}
-                          variant={"outline"}
-                          size={"icon"}
-                        >
-                          <IconBrandGithub className="size-5" />
-                        </Button>
-
-                        <Button
-                          disabled={!profileData?.twitter}
-                          variant={"outline"}
-                          size={"icon"}
-                        >
-                          <IconBrandX className="size-5" />
-                        </Button>
-                        <Button
-                          disabled={!profileData?.linkedin}
-                          variant={"outline"}
-                          size={"icon"}
-                        >
-                          <IconBrandLinkedin className="size-5" />
-                        </Button>
-                      </div>
+                <div className="bg-accent px-4 py-2 rounded-xl space-y-3">
+                  <div className="flex items-center space-x-6 border-b pb-2">
+                    <Avatar>
+                      <AvatarImage src={profileData.avatarUrl} />
+                      <AvatarFallback>
+                        {getInitials(profileData.name)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex flex-col w-full">
+                      <span className="text-black font-semibold">
+                        {profileData.name}
+                      </span>
+                      <span className="text-sm text-neutral-800">
+                        {profileData.title}
+                      </span>
+                      <span className="text-neutral-600 italic text-sm mt-1">
+                        "{profileData.bio}"
+                      </span>
                     </div>
-                  )}
+                  </div>
+                  <div className="flex gap-2 py-2">
+                    <Button
+                      disabled={!profileData.instagram}
+                      variant="outline"
+                      size="icon"
+                      onClick={() =>
+                        window.open(
+                          `https://instagram.com/${profileData.instagram}`,
+                          "_blank"
+                        )
+                      }
+                    >
+                      <IconBrandInstagram className="size-5" />
+                    </Button>
+                    <Button
+                      disabled={!profileData.github}
+                      variant="outline"
+                      size="icon"
+                      onClick={() =>
+                        window.open(
+                          `https://github.com/${profileData.github}`,
+                          "_blank"
+                        )
+                      }
+                    >
+                      <IconBrandGithub className="size-5" />
+                    </Button>
+                    <Button
+                      disabled={!profileData.twitter}
+                      variant="outline"
+                      size="icon"
+                      onClick={() =>
+                        window.open(
+                          `https://x.com/${profileData.twitter}`,
+                          "_blank"
+                        )
+                      }
+                    >
+                      <IconBrandX className="size-5" />
+                    </Button>
+                    <Button
+                      disabled={!profileData.linkedin}
+                      variant="outline"
+                      size="icon"
+                      onClick={() =>
+                        window.open(
+                          `https://linkedin.com/in/${profileData.linkedin}`,
+                          "_blank"
+                        )
+                      }
+                    >
+                      <IconBrandLinkedin className="size-5" />
+                    </Button>
+
+                    <Button onClick={() => setOpenForm(true)}>
+                      <IconEdit /> Edit
+                    </Button>
+                  </div>
                 </div>
               </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-        <div className="flex flex-col gap-2 items-center justify-center px-4 h-full">
-          {/* <Switch className="border " /> */}
-        </div>
-        <div className="flex items-center justify-center h-full text-neutral-500 bg-white/40 px-3 cursor-pointer  ">
-          <IconGripVertical className="size-5 text-white" />
+            </AnimatePresence>
+          ) : (
+            <Button
+              className="w-max relative"
+              variant={"outline"}
+              onClick={() => setOpenForm(true)}
+            >
+              <IconCirclePlus /> Add Profile
+              <BorderBeam duration={8} size={50} borderWidth={1} />
+            </Button>
+          )}
         </div>
       </div>
-      <ProfileForm open={openForm} onOpenChange={setOpenForm} />
+      {openForm && (
+        <ProfileForm
+          open={openForm}
+          onOpenChange={setOpenForm}
+          initialData={profileData}
+        />
+      )}
     </>
   );
 }
 
 export default PersonalInfo;
 
-const ProfileDataSkeleton = () => {
-  return (
-    <div className="flex items-center space-x-4">
-      <Skeleton className="h-12 w-12 rounded-full" />
-      <div className="space-y-2">
-        <Skeleton className="h-4 w-[250px]" />
-        <Skeleton className="h-4 w-[200px]" />
-      </div>
+const ProfileDataSkeleton = () => (
+  <div className="flex items-center space-x-4">
+    <Skeleton className="h-12 w-12 rounded-full" />
+    <div className="space-y-2">
+      <Skeleton className="h-4 w-[250px]" />
+      <Skeleton className="h-4 w-[200px]" />
     </div>
-  );
-};
+  </div>
+);
