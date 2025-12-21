@@ -1,6 +1,7 @@
 interface createProfile {
   fullName: string;
   profileImageUrl: string;
+  avatarFileId: string;
   role: string;
   bio: string;
   instagramUrl?: string;

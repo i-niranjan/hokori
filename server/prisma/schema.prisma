@@ -4,7 +4,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -38,15 +37,16 @@ model Skill {
 }
 
 model Profile {
-  id        String  @id @default(cuid())
-  userId    String  @unique
-  name      String
-  avatarUrl String
-  title     String
-  bio       String
-  instagram String?
-  github    String?
-  twitter   String?
-  linkedin  String?
-  user      User    @relation(fields: [userId], references: [id])
+  id           String  @id @default(cuid())
+  userId       String  @unique
+  name         String
+  avatarUrl    String
+  avatarFileId String
+  title        String
+  bio          String
+  instagram    String?
+  github       String?
+  twitter      String?
+  linkedin     String?
+  user         User    @relation(fields: [userId], references: [id])
 }

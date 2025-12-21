@@ -8,6 +8,7 @@ export const profileService = {
         userId: userId,
         name: data.fullName,
         avatarUrl: data.profileImageUrl,
+        avatarFileId: data.avatarFileId,
         title: data.role,
         bio: data.bio,
         instagram: data.instagramUrl ?? null,
