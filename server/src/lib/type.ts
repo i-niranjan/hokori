@@ -7,6 +7,9 @@ interface createProfile {
   instagramUrl?: string;
   githubUrl?: string;
   xUrl?: string;
-  linkedinUrl?: string;
+  linkedInUrl?: string;
 }
-export { createProfile };
+
+type updateProfile = Partial<createProfile>;
+
+export { createProfile, updateProfile };

@@ -11,7 +11,6 @@ import {
   IconBrandX,
   IconCirclePlus,
   IconEdit,
-  IconPlus,
 } from "@tabler/icons-react";
 import { getInitials } from "@/helpers/helper";
 import ProfileForm from "../form/ProfileForm";
@@ -154,6 +153,7 @@ function PersonalInfo() {
           open={openForm}
           onOpenChange={setOpenForm}
           initialData={profileData}
+          onSaved={setProfileData}
         />
       )}
     </>

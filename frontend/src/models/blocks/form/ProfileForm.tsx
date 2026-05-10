@@ -33,7 +33,7 @@ import {
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { eventAddSchema } from "@/lib/schema";
-import { AddProfile } from "@/services/profileService";
+import { AddProfile, UpdateProfile } from "@/services/profileService";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Label } from "@/components/ui/label";
@@ -50,32 +50,58 @@ interface ProfileFormProps {
   open: boolean;
   onOpenChange(open: boolean): void;
   initialData?: ProfileData;
+  onSaved?(profile: ProfileData): void;
 }
+
+const getProfileFormValues = (
+  profile?: ProfileData
+): EventAddPayload => ({
+  profileImageUrl: profile?.avatarUrl || "",
+  avatarFileId: profile?.avatarFileId || "",
+  fullName: profile?.name || "",
+  bio: profile?.bio || "",
+  role: profile?.title || "",
+  instagramUrl: profile?.instagram || "",
+  githubUrl: profile?.github || "",
+  linkedInUrl: profile?.linkedin || "",
+  xUrl: profile?.twitter || "",
+});
+
+const getChangedProfileValues = (
+  values: EventAddPayload,
+  initialValues: EventAddPayload
+): Partial<EventAddPayload> => {
+  return Object.entries(values).reduce<Partial<EventAddPayload>>(
+    (changedValues, [key, value]) => {
+      const field = key as keyof EventAddPayload;
+      if (value !== initialValues[field]) {
+        changedValues[field] = value;
+      }
+      return changedValues;
+    },
+    {}
+  );
+};
 
 export default function ProfileForm({
   open,
   onOpenChange,
   initialData,
+  onSaved,
 }: ProfileFormProps) {
-  const [hasProfileImage, setHasProfileImage] = useState(false);
   const [profileLoading, setProfileLoading] = useState(false);
   const [removeLoading, setRemoveLoading] = useState(false);
-  const [preview, setPreview] = useState<{ url?: string; fieldId?: string }>();
+
+  const [preview, setPreview] = useState<{
+    url?: string;
+    fieldId?: string;
+  } | null>(null);
+
   const inputRef = useRef<HTMLInputElement>(null);
   const userId = useAppSelector((state) => state.auth.user?.userId);
   const form = useForm<EventAddPayload>({
     resolver: zodResolver(eventAddSchema),
-    defaultValues: {
-      profileImageUrl: initialData?.avatarUrl || "",
-      avatarFileId: initialData?.avatarFileId || "",
-      fullName: initialData?.name || "",
-      bio: initialData?.bio || "",
-      role: initialData?.bio || "",
-      instagramUrl: initialData?.instagram || "",
-      githubUrl: initialData?.github || "",
-      linkedInUrl: initialData?.linkedin || "",
-      xUrl: initialData?.twitter || "",
-    },
+    defaultValues: getProfileFormValues(initialData),
   });
 
   useEffect(() => {
@@ -84,9 +110,11 @@ export default function ProfileForm({
         url: initialData.avatarUrl,
         fieldId: initialData.avatarFileId,
       });
-      setHasProfileImage(true);
+    } else {
+      setPreview(null);
     }
-  }, [initialData]);
+    form.reset(getProfileFormValues(initialData));
+  }, [form, initialData]);
 
   const onError = (errors: any) => {
     console.log("Form validation failed:", errors);
@@ -94,11 +122,31 @@ export default function ProfileForm({
 
   async function onSubmit(values: z.infer<typeof eventAddSchema>) {
     try {
-      const result = await AddProfile(values);
+      if (initialData) {
+        const changedValues = getChangedProfileValues(
+          values,
+          getProfileFormValues(initialData)
+        );
 
+        if (Object.keys(changedValues).length === 0) {
+          toast("No profile changes to save");
+          onOpenChange(false);
+          return;
+        }
+
+        const result = await UpdateProfile(changedValues);
+        onSaved?.(result.data.data);
+        toast("Profile Updated");
+        onOpenChange(false);
+        return;
+      }
+
+      const result = await AddProfile(values);
+      onSaved?.(result.data.data);
       toast("Profile Added");
+      onOpenChange(false);
     } catch (error) {
-      toast.error("Something went wrong while adding a profile");
+      toast.error("Something went wrong while saving your profile");
     }
   }
 
@@ -174,15 +222,20 @@ export default function ProfileForm({
   };
 
   const removeImage = async (fieldOnChange: (val: string) => void) => {
-    if (!preview?.fieldId)
-      return toast.error(
-        "Something went wrong, if you persist this bug please report us"
+    if (!preview?.fieldId) {
+      toast.error(
+        "Something went wrong while removing profile image, if you persist this bug please report us"
       );
+      return;
+    }
     setRemoveLoading(true);
     try {
+      console.log("Preview ID ", preview.fieldId);
+
       const result = await deletImage(preview?.fieldId);
-      setPreview({ url: undefined, fieldId: undefined });
+      setPreview(null);
       fieldOnChange("");
+      form.setValue("avatarFileId", "");
       if (inputRef.current) inputRef.current.value = "";
       toast.success(result.message);
     } catch (error) {
@@ -194,7 +247,6 @@ export default function ProfileForm({
     }
   };
 
-  const values = form.watch();
   // useEffect(() => {
   //   console.log("Form values changed:", values);
   // }, [values]);
@@ -239,7 +291,10 @@ export default function ProfileForm({
                                 )}
                               >
                                 <div className="relative">
-                                  <Avatar className="w-20 h-20  cursor-pointer border">
+                                  <Avatar
+                                    key={preview?.url ?? "fallback"}
+                                    className="w-20 h-20  cursor-pointer border"
+                                  >
                                     {profileLoading ? (
                                       <div className="w-full h-full flex items-center justify-center">
                                         <IconLoader2 className="h-4 w-4 text-gray-500 animate-spin" />
@@ -254,6 +309,7 @@ export default function ProfileForm({
                                   </Avatar>
                                   {preview?.fieldId && (
                                     <button
+                                      type="button"
                                       onClick={() =>
                                         removeImage(field.onChange)
                                       }

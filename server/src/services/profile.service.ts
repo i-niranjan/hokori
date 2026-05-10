@@ -1,5 +1,5 @@
 import prisma from "../lib/prisma";
-import { createProfile } from "../lib/type";
+import { createProfile, updateProfile } from "../lib/type";
 export const profileService = {
   addProfile: async (data: createProfile, userId: string) => {
     if (!data) throw new Error("Invalid Input");
@@ -14,7 +14,7 @@ export const profileService = {
         instagram: data.instagramUrl ?? null,
         github: data.githubUrl ?? null,
         twitter: data.xUrl ?? null,
-        linkedin: data.linkedinUrl ?? null,
+        linkedin: data.linkedInUrl ?? null,
       },
     });
     return profile;
@@ -22,6 +22,38 @@ export const profileService = {
   getProfile: async (userId: string) => {
     const profile = await prisma.profile.findUnique({
       where: { userId: userId },
+    });
+
+    return profile;
+  },
+  updateProfile: async (data: updateProfile, userId: string) => {
+    if (!data || Object.keys(data).length === 0) {
+      throw new Error("No profile fields provided for update");
+    }
+
+    const updateData: Record<string, string | null> = {};
+
+    if (data.fullName !== undefined) updateData.name = data.fullName;
+    if (data.profileImageUrl !== undefined) {
+      updateData.avatarUrl = data.profileImageUrl;
+    }
+    if (data.avatarFileId !== undefined) {
+      updateData.avatarFileId = data.avatarFileId;
+    }
+    if (data.role !== undefined) updateData.title = data.role;
+    if (data.bio !== undefined) updateData.bio = data.bio;
+    if (data.instagramUrl !== undefined) {
+      updateData.instagram = data.instagramUrl || null;
+    }
+    if (data.githubUrl !== undefined) updateData.github = data.githubUrl || null;
+    if (data.xUrl !== undefined) updateData.twitter = data.xUrl || null;
+    if (data.linkedInUrl !== undefined) {
+      updateData.linkedin = data.linkedInUrl || null;
+    }
+
+    const profile = await prisma.profile.update({
+      where: { userId: userId },
+      data: updateData,
     });
 
     return profile;

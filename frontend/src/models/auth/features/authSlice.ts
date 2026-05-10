@@ -109,7 +109,6 @@ const authSlice = createAppSlice({
         fulfilled: (state, action) => {
           state.loading = false;
           const { message, token, user } = action.payload;
-          console.log("PAYLOAD USER", JSON.stringify(user, null, 2));
 
           state.user = user
             ? {
