@@ -1,54 +1,43 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import HokoriLogo from "./hokori-logo";
-
-import { Button } from "../components/ui/button";
 import { Link, useNavigate } from "react-router";
+import { Button } from "@/components/ui/button";
+import { ModeToggle } from "@/components/mode-toggle";
+import HokoriMark from "@/components/hokori-mark";
 import { isTokenExpired } from "@/helpers/helper";
 import { useAppSelector } from "@/lib/hooks";
 
 export default function HomeNavbar() {
   const token = useAppSelector((state) => state.auth.token);
-
   const isLoggedIn = token ? !isTokenExpired(token) : false;
   const navigate = useNavigate();
+
   return (
-    <nav className="w-full h-24 p-3 ">
-      <div className="w-full h-full justify-between flex items-center p-2 px-4 bg-accent rounded-md">
-        <Link to="/">
-          <HokoriLogo />
+    <nav className="w-full">
+      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-2">
+        <Link to="/" className="flex items-center">
+          <HokoriMark size="md" />
         </Link>
 
-        {isLoggedIn ? (
-          <div className="flex gap-2 items-center">
-            <Button
-              onClick={() => {
-                navigate("/dashboard");
-              }}
-              className="rounded-none hover:scale-110"
-            >
+        <div className="flex items-center gap-2">
+          <ModeToggle />
+          {isLoggedIn ? (
+            <Button size="sm" onClick={() => navigate("/dashboard")}>
               Launchpad
             </Button>
-
-            <Avatar className="size-12">
-              <AvatarImage src="https://github.com/shadcn.png" />
-              <AvatarFallback>CN</AvatarFallback>
-            </Avatar>
-
-            <div>
-              <p className="font-medium">Niranjan Chaudhari</p>
-              <p className="text-neutral-500 text-xs">
-                niranjanchaudhari2004@gmail.com
-              </p>
-            </div>
-          </div>
-        ) : (
-          <Button
-            onClick={() => navigate("/auth/signup")}
-            className="rounded-none cursor-pointer"
-          >
-            Get Started
-          </Button>
-        )}
+          ) : (
+            <>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => navigate("/auth/login")}
+              >
+                Sign in
+              </Button>
+              <Button size="sm" onClick={() => navigate("/auth/signup")}>
+                Get started
+              </Button>
+            </>
+          )}
+        </div>
       </div>
     </nav>
   );

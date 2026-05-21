@@ -21,7 +21,7 @@ import {
   IconX,
 } from "@tabler/icons-react";
 import { Input } from "@/components/ui/input";
-import { useForm } from "react-hook-form";
+import { useForm, type FieldErrors } from "react-hook-form";
 import {
   Form,
   FormField,
@@ -116,7 +116,7 @@ export default function ProfileForm({
     form.reset(getProfileFormValues(initialData));
   }, [form, initialData]);
 
-  const onError = (errors: any) => {
+  const onError = (errors: FieldErrors<z.infer<typeof eventAddSchema>>) => {
     console.log("Form validation failed:", errors);
   };
 
@@ -145,7 +145,7 @@ export default function ProfileForm({
       onSaved?.(result.data.data);
       toast("Profile Added");
       onOpenChange(false);
-    } catch (error) {
+    } catch {
       toast.error("Something went wrong while saving your profile");
     }
   }
@@ -238,7 +238,7 @@ export default function ProfileForm({
       form.setValue("avatarFileId", "");
       if (inputRef.current) inputRef.current.value = "";
       toast.success(result.message);
-    } catch (error) {
+    } catch {
       toast.error(
         "Something went wrong, if you persist this bug please report us"
       );

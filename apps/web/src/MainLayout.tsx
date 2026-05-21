@@ -1,18 +1,19 @@
-import Navbar from "./components/navbar";
-import Sidebar from "./components/sidebar";
-
 import { Outlet } from "react-router";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/app-sidebar";
+import { DashboardHeader } from "@/components/dashboard-header";
+
 function MainLayout() {
   return (
-    <>
-      <div className="flex">
-        <Sidebar />
-        <div className="pr-5 w-full">
-          <Navbar />
+    <SidebarProvider>
+      <AppSidebar />
+      <SidebarInset>
+        <DashboardHeader />
+        <main className="flex-1 min-w-0">
           <Outlet />
-        </div>
-      </div>
-    </>
+        </main>
+      </SidebarInset>
+    </SidebarProvider>
   );
 }
 

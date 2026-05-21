@@ -15,7 +15,6 @@ import {
 import { getInitials } from "@/helpers/helper";
 import ProfileForm from "../form/ProfileForm";
 import api from "@/models/auth/refresh";
-import { BorderBeam } from "@/components/ui/border-beam";
 import type { ProfileData } from "@hokori/types";
 
 function PersonalInfo() {
@@ -28,7 +27,7 @@ function PersonalInfo() {
       try {
         const result = await api.get("/component/profile/getProfile");
         setProfileData(result.data.data || null);
-      } catch (error) {
+      } catch {
         toast.error("Something went wrong, Please Try Again");
       } finally {
         setLoading(false);
@@ -38,11 +37,16 @@ function PersonalInfo() {
 
   return (
     <>
-      <div className="h-max w-150 rounded-2xl border shadow-xs flex overflow-hidden">
-        <div className="flex flex-col gap-3 w-full px-3 py-3">
-          <span className="text-xl text-black font-semibold">
-            Profile Information
-          </span>
+      <div className="h-max w-full max-w-2xl rounded-md border bg-card flex overflow-hidden">
+        <div className="flex flex-col gap-3 w-full px-4 py-4">
+          <div className="flex items-baseline justify-between border-b pb-2">
+            <span className="font-display text-lg font-semibold text-foreground">
+              Profile
+            </span>
+            <span className="font-display text-xs text-muted-foreground">
+              基本情報
+            </span>
+          </div>
 
           {loading ? (
             <ProfileDataSkeleton />
@@ -55,22 +59,22 @@ function PersonalInfo() {
                 transition={{ duration: 0.4, ease: "easeInOut" }}
                 className="overflow-hidden"
               >
-                <div className="bg-accent px-4 py-2 rounded-xl space-y-3">
-                  <div className="flex items-center space-x-6 border-b pb-2">
-                    <Avatar>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-5 pb-2">
+                    <Avatar className="size-12">
                       <AvatarImage src={profileData.avatarUrl} />
                       <AvatarFallback>
                         {getInitials(profileData.name)}
                       </AvatarFallback>
                     </Avatar>
-                    <div className="flex flex-col w-full">
-                      <span className="text-black font-semibold">
+                    <div className="flex flex-col w-full min-w-0">
+                      <span className="font-semibold text-foreground">
                         {profileData.name}
                       </span>
-                      <span className="text-sm text-neutral-800">
+                      <span className="text-sm text-muted-foreground">
                         {profileData.title}
                       </span>
-                      <span className="text-neutral-600 italic text-sm mt-1">
+                      <span className="text-muted-foreground italic text-sm mt-1 truncate">
                         "{profileData.bio}"
                       </span>
                     </div>
@@ -138,12 +142,11 @@ function PersonalInfo() {
             </AnimatePresence>
           ) : (
             <Button
-              className="w-max relative"
-              variant={"outline"}
+              className="w-max"
+              variant="outline"
               onClick={() => setOpenForm(true)}
             >
               <IconCirclePlus /> Add Profile
-              <BorderBeam duration={8} size={50} borderWidth={1} />
             </Button>
           )}
         </div>

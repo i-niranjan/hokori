@@ -1,31 +1,118 @@
+import { Link } from "react-router";
 import { Button } from "./components/ui/button";
 import { IconArrowUpRight } from "@tabler/icons-react";
 import HomeNavbar from "./components/homeNavbar";
+import { Card } from "./components/ui/card";
+
+const features = [
+  {
+    title: "Your Profile",
+    sub: "プロフィール",
+    desc: "A single page that introduces you, your way.",
+  },
+  {
+    title: "Your Story",
+    sub: "物語",
+    desc: "Long-form sections for the work behind the work.",
+  },
+  {
+    title: "Your Work",
+    sub: "作品",
+    desc: "Showcase projects, links, and what you're proud of.",
+  },
+];
+
 function Home() {
   return (
-    <>
-      <div className="relative h-screen  p-5">
-        <div className="absolute inset-0  bg-gradient-to-bl from-primary to-secondary " />
+    <div className="min-h-screen bg-background text-foreground">
+      <div className="mx-auto max-w-6xl px-6 pt-6">
+        <HomeNavbar />
+      </div>
 
-        {/* Content wrapper to control layering */}
-        <div className="relative z-10">
-          <HomeNavbar />
-          <div className="grid grid-cols-8 p-3">
-            <div className="col-span-4 flex flex-col justify-center gap-10 items-start h-[30rem]">
-              <h1 className="text-6xl font-bold text-white ">
-                Hey devs! Wanna create a cool, awesome Hokori of your own?
-              </h1>
-              <Button className="rounded-none">
-                Get Started Today <IconArrowUpRight />
-              </Button>
-            </div>
-            <div className="col-span-4 h-[30rem] flex items-center">
-              COOL MOCKUP IMAGE
-            </div>
+      <section className="mx-auto grid max-w-6xl items-center gap-12 px-6 py-16 md:grid-cols-2 md:py-24">
+        <div className="flex flex-col gap-6">
+          <span className="font-display text-sm uppercase tracking-[0.2em] text-muted-foreground">
+            Pride in your journey
+          </span>
+          <h1 className="font-display text-5xl font-semibold leading-[1.05] tracking-tight md:text-6xl">
+            A niche-first profile
+            <br />
+            for the work
+            <br />
+            <span className="text-primary">you&apos;re proud of.</span>
+          </h1>
+          <p className="max-w-md text-base text-muted-foreground">
+            Hokori is a quiet, opinionated home for developers, designers,
+            marketers, and creative professionals.
+          </p>
+          <div className="flex items-center gap-3 pt-2">
+            <Button asChild>
+              <Link to="/auth/signup">
+                Get started <IconArrowUpRight className="size-4" />
+              </Link>
+            </Button>
+            <Button asChild variant="ghost">
+              <Link to="/auth/login">Sign in</Link>
+            </Button>
           </div>
         </div>
-      </div>
-    </>
+
+        <div className="relative flex justify-center md:justify-end">
+          <Card className="w-full max-w-sm rounded-md border bg-card p-6 shadow-none">
+            <div className="flex items-baseline justify-between border-b pb-3">
+              <span className="font-display text-sm font-semibold">
+                Hokori
+              </span>
+              <span className="font-display text-xs text-muted-foreground">
+                誇り
+              </span>
+            </div>
+            <div className="mt-4 flex items-center gap-3">
+              <div className="size-12 rounded-full bg-muted" />
+              <div className="flex flex-col">
+                <span className="text-sm font-medium">Your name</span>
+                <span className="text-xs text-muted-foreground">
+                  Your title
+                </span>
+              </div>
+            </div>
+            <p className="mt-4 text-sm italic text-muted-foreground">
+              "Small steps build a future you're proud of."
+            </p>
+            <div className="mt-5 flex items-center justify-between border-t pt-4">
+              <div className="size-2 rounded-full bg-primary" aria-hidden />
+              <span className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                preview
+              </span>
+            </div>
+          </Card>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-6xl border-t px-6 py-16">
+        <div className="grid gap-10 md:grid-cols-3">
+          {features.map((f) => (
+            <div key={f.title} className="flex flex-col gap-2">
+              <div className="flex items-baseline gap-2">
+                <h3 className="font-display text-lg font-semibold">
+                  {f.title}
+                </h3>
+                <span className="font-display text-xs text-muted-foreground">
+                  {f.sub}
+                </span>
+              </div>
+              <p className="text-sm text-muted-foreground">{f.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <footer className="mx-auto max-w-6xl border-t px-6 py-8">
+        <p className="text-xs text-muted-foreground">
+          © Hokori · 誇り — Pride in your journey.
+        </p>
+      </footer>
+    </div>
   );
 }
 

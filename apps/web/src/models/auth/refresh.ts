@@ -88,8 +88,10 @@ api.interceptors.response.use(
         // clear and route to login
         localStorage.clear();
         try {
-          store.dispatch(logout()); // optional: if your thunk handles clearing
-        } catch {}
+          store.dispatch(logout());
+        } catch {
+          // thunk may not be available in all contexts; clearing is best-effort
+        }
         navigate("/auth/login");
       }
     }

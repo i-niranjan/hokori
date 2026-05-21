@@ -1,40 +1,47 @@
 import { Button } from "@/components/ui/button";
 import { IconPlus } from "@tabler/icons-react";
 
-import { motion } from "motion/react";
 import PersonalInfo from "@/models/blocks/components/PersonalInfo";
 import PreviewWindow from "../components/PreviewWindow";
 
-const MotionButton = motion(Button);
 function Dashboard() {
   return (
-    <>
-      <div className="h-screen w-full   p-2">
-        <div className="flex  w-full  p-2 ">
-          <div className="md:w-[60%] flex flex-col gap-2  p-2">
-            <div className="border-b w-full h-max">
-              <h2 className="text-2xl font-semibold ">Think, Build, Create</h2>
-            </div>
-            <div className="mt-5 gap-4 flex flex-col">
-              <div>
-                <MotionButton
-                  whileTap={{
-                    scale: 0.95,
-                    boxShadow: "0px 2px 4px rgba(0,0,0,0.2)",
-                  }}
-                >
-                  Add Component <IconPlus />
-                </MotionButton>
-              </div>
-              <div className="flex relative flex-col gap-3">
-                <PersonalInfo />
-              </div>
-            </div>
-          </div>
-          <PreviewWindow />
+    <div className="mx-auto w-full max-w-7xl px-6 py-8">
+      <div className="flex items-baseline justify-between border-b pb-4">
+        <div>
+          <h1 className="font-display text-3xl font-semibold tracking-tight text-foreground">
+            Dashboard
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Compose your Hokori page, one block at a time.
+          </p>
         </div>
+        <span className="font-display text-sm text-muted-foreground hidden sm:inline">
+          ダッシュボード
+        </span>
       </div>
-    </>
+
+      <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_22rem]">
+        <section className="flex flex-col gap-4">
+          <div className="flex items-center justify-between">
+            <h2 className="font-display text-sm font-medium uppercase tracking-wider text-muted-foreground">
+              Blocks
+            </h2>
+            <Button size="sm" variant="outline">
+              <IconPlus className="size-4" /> Add block
+            </Button>
+          </div>
+          <PersonalInfo />
+        </section>
+
+        <aside className="flex flex-col gap-4">
+          <h2 className="font-display text-sm font-medium uppercase tracking-wider text-muted-foreground">
+            Preview
+          </h2>
+          <PreviewWindow />
+        </aside>
+      </div>
+    </div>
   );
 }
 

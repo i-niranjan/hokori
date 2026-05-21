@@ -25,15 +25,15 @@ function AppRoutes() {
             <Route element={<MainLayout />}>
               <Route path="/dashboard" element={<Dashboard />} />
 
-              <Route path="/template" element={<Template />} />
-              <Route path="/insight" element={<Insights />} />
-              <Route path="/setting" element={<Settings />} />
+              <Route path="/templates" element={<Template />} />
+              <Route path="/insights" element={<Insights />} />
+              <Route path="/settings" element={<Settings />} />
             </Route>
           </Route>
 
           <Route path="/auth" element={<Auth />}>
-            <Route path="login" element={<LoginForm className="w-1/2" />} />
-            <Route path="signup" element={<SignupForm className="w-1/2" />} />
+            <Route path="login" element={<LoginForm />} />
+            <Route path="signup" element={<SignupForm />} />
           </Route>
         </Routes>
         <Toaster />

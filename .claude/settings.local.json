@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx shadcn@latest add sidebar breadcrumb tabs scroll-area command sheet tooltip separator --yes --overwrite)"
+    ]
+  }
+}

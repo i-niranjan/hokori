@@ -2,7 +2,15 @@ import type { UserSchema, Login } from "@/models/auth/authTypes";
 
 import { toast } from "sonner";
 import { createAppSlice } from "@/app/createAppSlice";
+import { AxiosError } from "axios";
 import api from "../refresh";
+
+function getApiErrorMessage(error: unknown, fallback: string): string {
+  if (error instanceof AxiosError) {
+    return error.response?.data?.message ?? fallback;
+  }
+  return fallback;
+}
 
 interface UserState {
   userId: string | null;
@@ -42,12 +50,8 @@ const authSlice = createAppSlice({
           const token = res.data.accessToken ?? res.data.token;
 
           return { ...res.data, token };
-        } catch (error: any) {
-          console.log("Caught error:", error.response?.data);
-
-          return rejectWithValue(
-            error.response?.data?.message || "Signup failed"
-          );
+        } catch (error: unknown) {
+          return rejectWithValue(getApiErrorMessage(error, "Signup failed"));
         }
       },
       {
@@ -88,12 +92,8 @@ const authSlice = createAppSlice({
           const token = res.data.accessToken ?? res.data.token;
 
           return { ...res.data, token };
-        } catch (error: any) {
-          console.log("Caught error:", error);
-
-          return rejectWithValue(
-            error.response?.data?.message || "Login Failed"
-          );
+        } catch (error: unknown) {
+          return rejectWithValue(getApiErrorMessage(error, "Login Failed"));
         }
       },
       {
@@ -135,9 +135,7 @@ const authSlice = createAppSlice({
           await api.post(`/auth/logout`);
 
           return { message: "Logged out successfully" };
-        } catch (error: any) {
-          console.log("Logout error:", error.response?.data);
-          // Even if API call fails, we should still clear local storage
+        } catch {
           return { message: "Logged out successfully" };
         }
       },
