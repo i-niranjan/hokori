@@ -1,0 +1,26 @@
+{
+  "name": "hokori",
+  "version": "0.0.0",
+  "private": true,
+  "packageManager": "npm@10.9.3",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "typecheck": "turbo typecheck",
+    "dev:web": "turbo dev --filter=@hokori/web",
+    "dev:server": "turbo dev --filter=@hokori/server",
+    "build:web": "turbo build --filter=@hokori/web",
+    "build:server": "turbo build --filter=@hokori/server",
+    "clean": "turbo clean"
+  },
+  "devDependencies": {
+    "rimraf": "^6.0.1",
+    "turbo": "^2.5.8",
+    "typescript": "^5.8.3"
+  }
+}

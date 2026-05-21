@@ -1,0 +1,44 @@
+{
+  "name": "@hokori/server",
+  "version": "1.0.0",
+  "private": true,
+  "description": "The initial version of hokori's backend",
+  "license": "ISC",
+  "author": "",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "types:build": "npm run build --workspace=@hokori/types",
+    "prisma:generate": "prisma generate --config prisma.config.ts",
+    "dev": "npm run types:build && npm run prisma:generate && tsx watch src/index.ts",
+    "build": "npm run types:build && npm run prisma:generate && tsc -p tsconfig.json",
+    "start": "node dist/index.js",
+    "typecheck": "npm run types:build && npm run prisma:generate && tsc -p tsconfig.json --noEmit",
+    "clean": "rimraf dist"
+  },
+  "dependencies": {
+    "@hokori/types": "*",
+    "@prisma/adapter-pg": "^7.2.0",
+    "@prisma/client": "^7.2.0",
+    "bcrypt-ts": "^5.0.3",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.1",
+    "express": "^5.1.0",
+    "imagekit": "^6.0.0",
+    "jsonwebtoken": "^9.0.2"
+  },
+  "devDependencies": {
+    "@types/cookie-parser": "^1.4.9",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/jsonwebtoken": "^9.0.9",
+    "@types/node": "^22.15.30",
+    "nodemon": "^3.1.10",
+    "prisma": "^7.2.0",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3"
+  }
+}
