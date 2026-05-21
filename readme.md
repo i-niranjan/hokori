@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./assets/hokori-banner.webp" alt="Hokori Banner" width="100%" />
+  <img src="./assets/hokori-banner.jpg" alt="Hokori Banner" width="100%" />
 </p>
 
 <h1 align="center">Hokori (誇り)</h1>
