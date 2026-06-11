@@ -1,9 +1,17 @@
 import { AuthService } from "../services/auth.service.js";
 import { Request, Response, NextFunction } from "express";
 import { generateToken, verifyRefreshToken } from "../utils/jwt.js";
+import { env } from "../lib/env.js";
 import jwt from "jsonwebtoken";
-const ACCESS_SECRET = process.env.ACCESS_SECRET!;
+
+const ACCESS_SECRET = env.ACCESS_SECRET;
 const authService = new AuthService();
+
+type UserRecord = Awaited<ReturnType<AuthService["login"]>>;
+const sanitizeUser = (user: UserRecord) => {
+  const { password: _password, ...safeUser } = user;
+  return safeUser;
+};
 
 export const AuthController = {
   signUp: async (req: Request, res: Response, next: NextFunction) => {
@@ -23,7 +31,7 @@ export const AuthController = {
       });
 
       res.status(201).json({
-        user,
+        user: sanitizeUser(user),
         message: "User registered successfully",
         accessToken: token.accessToken,
       });
@@ -47,7 +55,7 @@ export const AuthController = {
       });
 
       res.status(200).json({
-        user,
+        user: sanitizeUser(user),
         message: "Login successful",
         accessToken: token.accessToken,
       });

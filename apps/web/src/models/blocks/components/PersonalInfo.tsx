@@ -15,10 +15,16 @@ import {
 import { getInitials } from "@/helpers/helper";
 import ProfileForm from "../form/ProfileForm";
 import api from "@/models/auth/refresh";
-import type { ProfileData } from "@hokori/types";
+import { useAppSelector } from "@/lib/hooks";
+import { useAppDispatch } from "@/app/store";
+import { setProfileData } from "../features/profileSlice";
 
 function PersonalInfo() {
-  const [profileData, setProfileData] = useState<ProfileData>();
+  const dispatch = useAppDispatch();
+  const profileData = useAppSelector(
+    (state) =>
+      state.profile.blocks.find((b) => b.type === "PersonalInfo")?.data,
+  );
   const [loading, setLoading] = useState(true);
   const [openForm, setOpenForm] = useState(false);
 
@@ -26,18 +32,18 @@ function PersonalInfo() {
     (async () => {
       try {
         const result = await api.get("/component/profile/getProfile");
-        setProfileData(result.data.data || null);
+        dispatch(setProfileData(result.data.data || null));
       } catch {
         toast.error("Something went wrong, Please Try Again");
       } finally {
         setLoading(false);
       }
     })();
-  }, []);
+  }, [dispatch]);
 
   return (
     <>
-      <div className="h-max w-full max-w-2xl rounded-md border bg-card flex overflow-hidden">
+      <div className="h-max w-full  rounded-md border bg-card flex overflow-hidden">
         <div className="flex flex-col gap-3 w-full px-4 py-4">
           <div className="flex items-baseline justify-between border-b pb-2">
             <span className="font-display text-lg font-semibold text-foreground">
@@ -87,7 +93,7 @@ function PersonalInfo() {
                       onClick={() =>
                         window.open(
                           `https://instagram.com/${profileData.instagram}`,
-                          "_blank"
+                          "_blank",
                         )
                       }
                     >
@@ -100,7 +106,7 @@ function PersonalInfo() {
                       onClick={() =>
                         window.open(
                           `https://github.com/${profileData.github}`,
-                          "_blank"
+                          "_blank",
                         )
                       }
                     >
@@ -113,7 +119,7 @@ function PersonalInfo() {
                       onClick={() =>
                         window.open(
                           `https://x.com/${profileData.twitter}`,
-                          "_blank"
+                          "_blank",
                         )
                       }
                     >
@@ -126,7 +132,7 @@ function PersonalInfo() {
                       onClick={() =>
                         window.open(
                           `https://linkedin.com/in/${profileData.linkedin}`,
-                          "_blank"
+                          "_blank",
                         )
                       }
                     >
@@ -155,8 +161,8 @@ function PersonalInfo() {
         <ProfileForm
           open={openForm}
           onOpenChange={setOpenForm}
-          initialData={profileData}
-          onSaved={setProfileData}
+          initialData={profileData ?? undefined}
+          onSaved={(profile) => dispatch(setProfileData(profile))}
         />
       )}
     </>

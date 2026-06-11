@@ -1,3 +1,29 @@
+export const THEME_IDS = ["minimal", "terminal"] as const;
+export type ThemeId = (typeof THEME_IDS)[number];
+
+export const BLOCK_TYPES = ["PersonalInfo"] as const;
+export type BlockType = (typeof BLOCK_TYPES)[number];
+
+/** Ordered skeleton of a page — block data lives in its own tables. */
+export interface PageBlockConfig {
+  id: string;
+  type: BlockType;
+  visible: boolean;
+}
+
+export interface PageConfig {
+  id: string;
+  theme: ThemeId;
+  published: boolean;
+  blocks: PageBlockConfig[];
+}
+
+export interface UpdatePagePayload {
+  theme?: ThemeId;
+  published?: boolean;
+  blocks?: PageBlockConfig[];
+}
+
 export interface CreateProfilePayload {
   fullName: string;
   profileImageUrl: string;

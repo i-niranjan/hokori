@@ -2,9 +2,27 @@ import { Button } from "@/components/ui/button";
 import { IconPlus } from "@tabler/icons-react";
 
 import PersonalInfo from "@/models/blocks/components/PersonalInfo";
-import PreviewWindow from "../components/PreviewWindow";
+import PreviewCanvas from "@/models/preview/components/PreviewCanvas";
+import ThemeController from "@/models/preview/components/ThemeController";
+import { useEffect } from "react";
+import { useAppDispatch } from "@/app/store";
+import { setPageConfig } from "@/models/blocks/features/profileSlice";
+import { getPage } from "@/services/pageService";
+import { toast } from "sonner";
 
 function Dashboard() {
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const page = await getPage();
+        dispatch(setPageConfig(page));
+      } catch {
+        toast.error("Couldn't load your page settings");
+      }
+    })();
+  }, [dispatch]);
   return (
     <div className="mx-auto w-full max-w-7xl px-6 py-8">
       <div className="flex items-baseline justify-between border-b pb-4">
@@ -35,10 +53,13 @@ function Dashboard() {
         </section>
 
         <aside className="flex flex-col gap-4">
-          <h2 className="font-display text-sm font-medium uppercase tracking-wider text-muted-foreground">
-            Preview
-          </h2>
-          <PreviewWindow />
+          <div className="flex items-center justify-between">
+            <h2 className="font-display text-sm font-medium uppercase tracking-wider text-muted-foreground">
+              Preview
+            </h2>
+            <ThemeController />
+          </div>
+          <PreviewCanvas />
         </aside>
       </div>
     </div>

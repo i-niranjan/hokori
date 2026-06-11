@@ -16,6 +16,17 @@ model User {
   Project   Project[]
   Skill     Skill[]
   Profile   Profile?
+  Page      Page?
+}
+
+model Page {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  theme     String   @default("minimal")
+  published Boolean  @default(false)
+  blocks    Json
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id])
 }
 
 model Project {

@@ -1,6 +1,8 @@
 import jwt from "jsonwebtoken";
-const ACCESS_SECRET = process.env.ACCESS_SECRET;
-const REFRESH_SECRET = process.env.ACCESS_SECRET;
+import { env } from "../lib/env.js";
+
+const ACCESS_SECRET = env.ACCESS_SECRET;
+const REFRESH_SECRET = env.REFRESH_SECRET;
 
 interface payload {
   id: string;
@@ -9,10 +11,6 @@ interface payload {
 interface TokenPair {
   accessToken: string;
   refreshToken: string;
-}
-
-if (!ACCESS_SECRET || !REFRESH_SECRET) {
-  throw new Error("JWT Keys are not defined!");
 }
 
 export function generateToken(payload: payload): TokenPair {
