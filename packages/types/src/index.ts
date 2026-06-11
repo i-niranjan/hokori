@@ -1,8 +1,19 @@
 export const THEME_IDS = ["minimal", "terminal"] as const;
 export type ThemeId = (typeof THEME_IDS)[number];
 
-export const BLOCK_TYPES = ["PersonalInfo"] as const;
+export const BLOCK_TYPES = ["PersonalInfo", "Skills"] as const;
 export type BlockType = (typeof BLOCK_TYPES)[number];
+
+export interface SkillData {
+  id: string;
+  name: string;
+  icon?: string | null;
+}
+
+export interface AddSkillPayload {
+  name: string;
+  icon?: string;
+}
 
 /** Ordered skeleton of a page — block data lives in its own tables. */
 export interface PageBlockConfig {
@@ -22,6 +33,15 @@ export interface UpdatePagePayload {
   theme?: ThemeId;
   published?: boolean;
   blocks?: PageBlockConfig[];
+}
+
+/** Payload served to visitors at hokori.app/:username — no auth. */
+export interface PublicProfilePayload {
+  username: string;
+  theme: ThemeId;
+  blocks: PageBlockConfig[];
+  profile: ProfileData | null;
+  skills: SkillData[];
 }
 
 export interface CreateProfilePayload {

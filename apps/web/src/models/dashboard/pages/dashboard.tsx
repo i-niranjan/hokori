@@ -2,8 +2,10 @@ import { Button } from "@/components/ui/button";
 import { IconPlus } from "@tabler/icons-react";
 
 import PersonalInfo from "@/models/blocks/components/PersonalInfo";
+import SkillsBlock from "@/models/blocks/components/SkillsBlock";
 import PreviewCanvas from "@/models/preview/components/PreviewCanvas";
 import ThemeController from "@/models/preview/components/ThemeController";
+import PublishToggle from "../components/PublishToggle";
 import { useEffect } from "react";
 import { useAppDispatch } from "@/app/store";
 import { setPageConfig } from "@/models/blocks/features/profileSlice";
@@ -34,9 +36,12 @@ function Dashboard() {
             Compose your Hokori page, one block at a time.
           </p>
         </div>
-        <span className="font-display text-sm text-muted-foreground hidden sm:inline">
-          ダッシュボード
-        </span>
+        <div className="flex items-center gap-4">
+          <PublishToggle />
+          <span className="font-display text-sm text-muted-foreground hidden sm:inline">
+            ダッシュボード
+          </span>
+        </div>
       </div>
 
       <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_22rem]">
@@ -50,6 +55,7 @@ function Dashboard() {
             </Button>
           </div>
           <PersonalInfo />
+          <SkillsBlock />
         </section>
 
         <aside className="flex flex-col gap-4">

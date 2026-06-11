@@ -1,6 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { useAppSelector } from "@/lib/hooks";
 import { themes } from "../themes/registry";
+import { renderBlock } from "../render";
 
 export default function PreviewCanvas() {
   const blocks = useAppSelector((state) => state.profile.blocks);
@@ -13,10 +14,7 @@ export default function PreviewCanvas() {
     <Card className="h-[calc(100vh-12rem)] min-h-[28rem] w-full overflow-hidden rounded-md border p-0 shadow-none">
       {visibleBlocks.length > 0 ? (
         <theme.Shell>
-          {visibleBlocks.map((block) => {
-            const Renderer = theme.renderers[block.type];
-            return <Renderer key={block.id} data={block.data!} />;
-          })}
+          {visibleBlocks.map((block) => renderBlock(theme, block))}
         </theme.Shell>
       ) : (
         <div className="flex h-full w-full flex-col items-center justify-center gap-3 bg-card text-muted-foreground">

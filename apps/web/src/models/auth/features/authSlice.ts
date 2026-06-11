@@ -14,6 +14,7 @@ function getApiErrorMessage(error: unknown, fallback: string): string {
 
 interface UserState {
   userId: string | null;
+  userName: string | null;
   firstName: string | null;
   lastName: string | null;
   email: string | null;
@@ -26,6 +27,7 @@ interface AuthState {
 
 const initialUser = {
   userId: localStorage.getItem("userId") ?? null,
+  userName: localStorage.getItem("userName") ?? null,
   email: localStorage.getItem("email") ?? null,
   firstName: localStorage.getItem("firstName") ?? null,
   lastName: localStorage.getItem("lastName") ?? null,
@@ -69,6 +71,7 @@ const authSlice = createAppSlice({
           state.user = user
             ? {
                 userId: user.id,
+                userName: user.userName ?? null,
                 firstName: user.firstName ?? null,
                 lastName: user.lastName ?? null,
                 email: user.email ?? null,
@@ -78,6 +81,7 @@ const authSlice = createAppSlice({
           state.token = token ?? null;
           localStorage.setItem("token", token);
           localStorage.setItem("userId", user.id);
+          if (user.userName) localStorage.setItem("userName", user.userName);
           localStorage.setItem("email", user.email);
           localStorage.setItem("firstName", user.firstName);
           localStorage.setItem("lastName", user.lastName);
@@ -113,6 +117,7 @@ const authSlice = createAppSlice({
           state.user = user
             ? {
                 userId: user.id,
+                userName: user.userName ?? null,
                 firstName: user.firstName ?? null,
                 lastName: user.lastName ?? null,
                 email: user.email ?? null,
@@ -122,6 +127,7 @@ const authSlice = createAppSlice({
           state.token = token ?? null;
           localStorage.setItem("token", token);
           localStorage.setItem("userId", user.id);
+          if (user.userName) localStorage.setItem("userName", user.userName);
           localStorage.setItem("email", user.email);
           localStorage.setItem("firstName", user.firstName);
           localStorage.setItem("lastName", user.lastName);
@@ -157,6 +163,7 @@ const authSlice = createAppSlice({
           state.token = null;
           localStorage.removeItem("token");
           localStorage.removeItem("userId");
+          localStorage.removeItem("userName");
           localStorage.removeItem("email");
           localStorage.removeItem("firstName");
           localStorage.removeItem("lastName");

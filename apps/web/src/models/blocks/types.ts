@@ -1,9 +1,10 @@
-import type { BlockType, ProfileData } from "@hokori/types";
+import type { BlockType, ProfileData, SkillData } from "@hokori/types";
 
 export type { BlockType };
 
 export interface BlockDataMap {
   PersonalInfo: ProfileData;
+  Skills: SkillData[];
 }
 
 interface BaseBlock<T extends BlockType> {
@@ -14,4 +15,6 @@ interface BaseBlock<T extends BlockType> {
   data: BlockDataMap[T] | null;
 }
 
-export type Block = BaseBlock<"PersonalInfo">;
+export type Block = { [T in BlockType]: BaseBlock<T> }[BlockType];
+
+export type BlockOfType<T extends BlockType> = Extract<Block, { type: T }>;

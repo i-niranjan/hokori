@@ -66,6 +66,11 @@ export const createProfileSchema = z.object({
 
 export const updateProfileSchema = createProfileSchema.partial();
 
+export const addSkillSchema = z.object({
+  name: z.string().min(1).max(50),
+  icon: z.string().max(100).optional(),
+});
+
 export const updatePageSchema = z
   .object({
     theme: z.enum(THEME_IDS).optional(),

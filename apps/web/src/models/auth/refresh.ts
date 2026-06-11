@@ -1,8 +1,15 @@
 import { navigate } from "@/lib/navigation";
 import axios from "axios";
 
-import { tokenRefreshed, logout } from "@/models/auth/features/authSlice";
-import { store } from "@/app/store";
+// store/authSlice are loaded lazily inside the interceptor to break the
+// circular import chain: store -> authSlice -> refresh -> store.
+const getStoreAndActions = async () => {
+  const [{ store }, { tokenRefreshed, logout }] = await Promise.all([
+    import("@/app/store"),
+    import("@/models/auth/features/authSlice"),
+  ]);
+  return { store, tokenRefreshed, logout };
+};
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -70,6 +77,7 @@ api.interceptors.response.use(
         api.defaults.headers.common["Authorization"] = `Bearer ${newToken}`;
 
         // update Redux state
+        const { store, tokenRefreshed } = await getStoreAndActions();
         store.dispatch(tokenRefreshed(newToken));
 
         // flush queue
@@ -88,6 +96,7 @@ api.interceptors.response.use(
         // clear and route to login
         localStorage.clear();
         try {
+          const { store, logout } = await getStoreAndActions();
           store.dispatch(logout());
         } catch {
           // thunk may not be available in all contexts; clearing is best-effort

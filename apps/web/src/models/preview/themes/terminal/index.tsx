@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import type { ProfileData } from "@hokori/types";
+import type { ProfileData, SkillData } from "@hokori/types";
 import type { ThemeDefinition } from "../../types";
 import { getSocialLinks } from "../../lib";
 
@@ -93,11 +93,33 @@ function PersonalInfo({ data }: { data: ProfileData }) {
   );
 }
 
+function Skills({ data }: { data: SkillData[] }) {
+  if (data.length === 0) return null;
+  return (
+    <WindowChrome title="skills — zsh">
+      <div className="flex flex-col gap-2">
+        <Prompt command="ls ./skills" />
+        <div className="flex flex-wrap gap-2">
+          {data.map((skill) => (
+            <span
+              key={skill.id}
+              className="rounded border border-zinc-700 bg-zinc-800/60 px-2 py-1 text-xs text-emerald-300"
+            >
+              {skill.name}
+            </span>
+          ))}
+        </div>
+      </div>
+    </WindowChrome>
+  );
+}
+
 export const terminalTheme: ThemeDefinition = {
   id: "terminal",
   name: "Terminal",
   Shell,
   renderers: {
     PersonalInfo,
+    Skills,
   },
 };

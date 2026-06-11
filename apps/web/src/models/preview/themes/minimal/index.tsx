@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import type { ProfileData } from "@hokori/types";
+import type { ProfileData, SkillData } from "@hokori/types";
 import type { ThemeDefinition } from "../../types";
 import { getInitials } from "@/helpers/helper";
 import { getSocialLinks } from "../../lib";
@@ -64,11 +64,33 @@ function PersonalInfo({ data }: { data: ProfileData }) {
   );
 }
 
+function Skills({ data }: { data: SkillData[] }) {
+  if (data.length === 0) return null;
+  return (
+    <section className="flex flex-col items-center gap-4">
+      <h2 className="text-xs font-semibold uppercase tracking-widest text-neutral-400">
+        Skills
+      </h2>
+      <div className="flex flex-wrap justify-center gap-2">
+        {data.map((skill) => (
+          <span
+            key={skill.id}
+            className="rounded-full border border-neutral-200 px-3 py-1 text-sm text-neutral-700"
+          >
+            {skill.name}
+          </span>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 export const minimalTheme: ThemeDefinition = {
   id: "minimal",
   name: "Minimal",
   Shell,
   renderers: {
     PersonalInfo,
+    Skills,
   },
 };

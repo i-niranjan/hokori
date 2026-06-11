@@ -7,6 +7,8 @@ import { errorHandler } from "./middleware/errorHandler.js";
 import authRoutes from "./routes/auth.routes.js";
 import profileRoutes from "./routes/profile.routes.js";
 import pageRoutes from "./routes/page.routes.js";
+import publicRoutes from "./routes/public.routes.js";
+import skillRoutes from "./routes/skill.routes.js";
 import imageKitRoutes from "./routes/imagekit.routes.js";
 import cookieParser from "cookie-parser";
 
@@ -48,7 +50,9 @@ app.get("/", (req: Request, res: Response) => {
 app.use("/auth", authLimiter, authRoutes);
 app.use("/image-kit", imageKitRoutes);
 app.use("/component/profile", profileRoutes);
+app.use("/component/skill", skillRoutes);
 app.use("/page", pageRoutes);
+app.use("/public", publicRoutes);
 
 app.use(errorHandler);
 
