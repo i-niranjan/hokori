@@ -1,7 +1,5 @@
 import prisma from "../lib/prisma.js";
-import type { AddSkillPayload } from "@hokori/types";
-
-const MAX_SKILLS = 40;
+import { MAX_SKILLS, type AddSkillPayload } from "@hokori/types";
 
 export const skillService = {
   getSkills: async (userId: string) => {

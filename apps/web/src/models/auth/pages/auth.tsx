@@ -40,12 +40,8 @@ function Auth() {
           </Link>
           <div className="flex flex-col gap-4">
             <p className="font-display text-3xl leading-snug text-foreground">
-              小さな一歩が、
-              <br />
-              誇れる未来をつくる。
-            </p>
-            <p className="max-w-sm text-sm text-muted-foreground">
-              Small steps build a future you&apos;re proud of.
+              Small steps build
+              <br />a future you&apos;re proud of.
             </p>
           </div>
           <p className="text-xs text-muted-foreground">

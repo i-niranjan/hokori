@@ -1,7 +1,9 @@
-import type { ReactNode } from "react";
-import type { ProfileData, SkillData } from "@hokori/types";
+import { useState, type ReactNode } from "react";
+import type { ProjectData, SkillData } from "@hokori/types";
+import type { PersonalInfoBlockData } from "@/models/blocks/types";
 import type { ThemeDefinition } from "../../types";
 import { getSocialLinks } from "../../lib";
+import ProjectDetailDialog from "../../components/ProjectDetailDialog";
 
 function Shell({ children }: { children: ReactNode }) {
   return (
@@ -36,36 +38,49 @@ function Prompt({ command }: { command: string }) {
   );
 }
 
-function PersonalInfo({ data }: { data: ProfileData }) {
-  const socials = getSocialLinks(data);
+function PersonalInfo({ data }: { data: PersonalInfoBlockData }) {
+  const { profile } = data;
+  const socials = getSocialLinks(data.socialLinks);
 
   return (
-    <WindowChrome title={`${data.name.toLowerCase().replace(/\s+/g, "-")} — zsh`}>
+    <WindowChrome
+      title={`${
+        profile ? profile.name.toLowerCase().replace(/\s+/g, "-") : "guest"
+      } — zsh`}
+    >
       <div className="flex flex-col gap-4">
-        <Prompt command="whoami" />
-        <div className="flex items-center gap-4">
-          {data.avatarUrl ? (
-            <img
-              src={data.avatarUrl}
-              alt={data.name}
-              className="size-16 rounded-md border border-zinc-700 object-cover"
-            />
-          ) : (
-            <div className="flex size-16 items-center justify-center rounded-md border border-zinc-700 bg-zinc-800 text-emerald-400">
-              $_
+        {profile && (
+          <>
+            <Prompt command="whoami" />
+            <div className="flex items-center gap-4">
+              {profile.avatarUrl ? (
+                <img
+                  src={profile.avatarUrl}
+                  alt={profile.name}
+                  className="size-16 rounded-md border border-zinc-700 object-cover"
+                />
+              ) : (
+                <div className="flex size-16 items-center justify-center rounded-md border border-zinc-700 bg-zinc-800 text-emerald-400">
+                  $_
+                </div>
+              )}
+              <div>
+                <h1 className="text-lg font-bold text-zinc-50">
+                  {profile.name}
+                </h1>
+                <p className="text-sm text-emerald-400">{profile.title}</p>
+              </div>
             </div>
-          )}
-          <div>
-            <h1 className="text-lg font-bold text-zinc-50">{data.name}</h1>
-            <p className="text-sm text-emerald-400">{data.title}</p>
-          </div>
-        </div>
 
-        {data.bio && (
-          <div className="flex flex-col gap-1">
-            <Prompt command="cat about.txt" />
-            <p className="text-sm leading-relaxed text-zinc-400">{data.bio}</p>
-          </div>
+            {profile.bio && (
+              <div className="flex flex-col gap-1">
+                <Prompt command="cat about.txt" />
+                <p className="text-sm leading-relaxed text-zinc-400">
+                  {profile.bio}
+                </p>
+              </div>
+            )}
+          </>
         )}
 
         {socials.length > 0 && (
@@ -114,6 +129,49 @@ function Skills({ data }: { data: SkillData[] }) {
   );
 }
 
+function Projects({ data }: { data: ProjectData[] }) {
+  const [selected, setSelected] = useState<ProjectData | null>(null);
+  if (data.length === 0) return null;
+  return (
+    <WindowChrome title="projects — zsh">
+      <div className="flex flex-col gap-3">
+        <Prompt command="ls ./projects" />
+        {data.map((project) => (
+          <button
+            key={project.id}
+            type="button"
+            onClick={() => setSelected(project)}
+            className="cursor-pointer overflow-hidden rounded border border-zinc-800 bg-zinc-950/60 text-left transition-colors hover:border-emerald-400/50"
+          >
+            {project.thumbnail && (
+              <img
+                src={project.thumbnail}
+                alt=""
+                className="h-24 w-full border-b border-zinc-800 object-cover opacity-90"
+              />
+            )}
+            <div className="px-3 py-2">
+              <div className="flex items-center justify-between gap-2">
+                <h3 className="text-sm font-bold text-zinc-50">
+                  {project.title}
+                </h3>
+                <span className="text-xs text-emerald-400">open →</span>
+              </div>
+              <p className="mt-1 text-xs leading-relaxed text-zinc-400">
+                {project.desc}
+              </p>
+            </div>
+          </button>
+        ))}
+      </div>
+      <ProjectDetailDialog
+        project={selected}
+        onClose={() => setSelected(null)}
+      />
+    </WindowChrome>
+  );
+}
+
 export const terminalTheme: ThemeDefinition = {
   id: "terminal",
   name: "Terminal",
@@ -121,5 +179,6 @@ export const terminalTheme: ThemeDefinition = {
   renderers: {
     PersonalInfo,
     Skills,
+    Projects,
   },
 };

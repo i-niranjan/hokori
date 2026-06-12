@@ -14,9 +14,6 @@ export default function Template() {
             Start from a curated layout, or save your own.
           </p>
         </div>
-        <span className="font-display text-sm text-muted-foreground hidden sm:inline">
-          雛形
-        </span>
       </div>
 
       <Card className="mt-10 mx-auto flex max-w-md flex-col items-center gap-4 rounded-md border bg-card p-10 text-center shadow-none">

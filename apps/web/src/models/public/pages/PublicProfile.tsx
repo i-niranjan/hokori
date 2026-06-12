@@ -90,8 +90,15 @@ export default function PublicProfile() {
       </Helmet>
       <theme.Shell>
         {payload.blocks.map((config) => {
-          const data =
-            config.type === "PersonalInfo" ? payload.profile : payload.skills;
+          const dataByType = {
+            PersonalInfo: {
+              profile: payload.profile,
+              socialLinks: payload.socialLinks,
+            },
+            Skills: payload.skills,
+            Projects: payload.projects,
+          };
+          const data = dataByType[config.type];
           return renderBlock(theme, { ...config, data } as Block);
         })}
       </theme.Shell>

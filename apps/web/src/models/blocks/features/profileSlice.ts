@@ -1,5 +1,12 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import type { PageConfig, ProfileData, SkillData } from "@hokori/types";
+import type {
+  BlockType,
+  PageConfig,
+  ProfileData,
+  ProjectData,
+  SkillData,
+  SocialLinkData,
+} from "@hokori/types";
 import type { Block } from "../types";
 import type { ThemeId } from "@/models/preview/types";
 
@@ -9,17 +16,18 @@ interface ProfileState {
   published: boolean;
 }
 
+/** Stable id per block type — one block of each type per page for now. */
+export const BLOCK_IDS: Record<BlockType, string> = {
+  PersonalInfo: "personal-info",
+  Skills: "skills",
+  Projects: "projects",
+};
+
 const initialState: ProfileState = {
   blocks: [
     {
-      id: "personal-info",
+      id: BLOCK_IDS.PersonalInfo,
       type: "PersonalInfo",
-      visible: true,
-      data: null,
-    },
-    {
-      id: "skills",
-      type: "Skills",
       visible: true,
       data: null,
     },
@@ -35,7 +43,19 @@ export const profileSlice = createSlice({
     setProfileData: (state, action: PayloadAction<ProfileData | null>) => {
       const block = state.blocks.find((b) => b.type === "PersonalInfo");
       if (block && block.type === "PersonalInfo") {
-        block.data = action.payload;
+        block.data = {
+          profile: action.payload,
+          socialLinks: block.data?.socialLinks ?? [],
+        };
+      }
+    },
+    setSocialLinks: (state, action: PayloadAction<SocialLinkData[]>) => {
+      const block = state.blocks.find((b) => b.type === "PersonalInfo");
+      if (block && block.type === "PersonalInfo") {
+        block.data = {
+          profile: block.data?.profile ?? null,
+          socialLinks: action.payload,
+        };
       }
     },
     setSkills: (state, action: PayloadAction<SkillData[]>) => {
@@ -43,6 +63,32 @@ export const profileSlice = createSlice({
       if (block && block.type === "Skills") {
         block.data = action.payload;
       }
+    },
+    setProjects: (state, action: PayloadAction<ProjectData[]>) => {
+      const block = state.blocks.find((b) => b.type === "Projects");
+      if (block && block.type === "Projects") {
+        block.data = action.payload;
+      }
+    },
+    addBlock: (state, action: PayloadAction<BlockType>) => {
+      const type = action.payload;
+      if (state.blocks.some((b) => b.type === type)) return;
+      state.blocks.push({
+        id: BLOCK_IDS[type],
+        type,
+        visible: true,
+        data: null,
+      } as Block);
+    },
+    removeBlock: (state, action: PayloadAction<string>) => {
+      state.blocks = state.blocks.filter((b) => b.id !== action.payload);
+    },
+    setBlocksOrder: (state, action: PayloadAction<Block[]>) => {
+      state.blocks = action.payload;
+    },
+    toggleBlockVisibility: (state, action: PayloadAction<string>) => {
+      const block = state.blocks.find((b) => b.id === action.payload);
+      if (block) block.visible = !block.visible;
     },
     setTheme: (state, action: PayloadAction<ThemeId>) => {
       state.activeTheme = action.payload;
@@ -71,6 +117,17 @@ export const profileSlice = createSlice({
   },
 });
 
-export const { setProfileData, setSkills, setTheme, setPageConfig, setPublished } =
-  profileSlice.actions;
+export const {
+  setProfileData,
+  setSocialLinks,
+  setSkills,
+  setProjects,
+  addBlock,
+  removeBlock,
+  setBlocksOrder,
+  toggleBlockVisibility,
+  setTheme,
+  setPageConfig,
+  setPublished,
+} = profileSlice.actions;
 export default profileSlice.reducer;

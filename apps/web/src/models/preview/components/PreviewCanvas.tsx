@@ -8,13 +8,15 @@ export default function PreviewCanvas() {
   const activeTheme = useAppSelector((state) => state.profile.activeTheme);
 
   const theme = themes[activeTheme];
-  const visibleBlocks = blocks.filter((block) => block.visible && block.data);
+  const visibleBlocks = blocks.filter((block) => block.visible);
 
   return (
-    <Card className="h-[calc(100vh-12rem)] min-h-[28rem] w-full overflow-hidden rounded-md border p-0 shadow-none">
+    <Card className="h-[calc(100vh-12rem)] min-h-112 w-full overflow-hidden rounded-md border p-0 shadow-none">
       {visibleBlocks.length > 0 ? (
         <theme.Shell>
-          {visibleBlocks.map((block) => renderBlock(theme, block))}
+          {visibleBlocks.map((block) =>
+            renderBlock(theme, block, { ghostWhenEmpty: true }),
+          )}
         </theme.Shell>
       ) : (
         <div className="flex h-full w-full flex-col items-center justify-center gap-3 bg-card text-muted-foreground">

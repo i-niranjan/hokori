@@ -11,15 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { useEffect, useRef, useState } from "react";
 import { User, Briefcase, Upload, Pen } from "lucide-react";
-import {
-  IconBrandGithub,
-  IconBrandInstagram,
-  IconBrandLinkedin,
-  IconBrandX,
-  IconLoader2,
-  IconPin,
-  IconX,
-} from "@tabler/icons-react";
+import { IconLoader2, IconPin, IconX } from "@tabler/icons-react";
 import { Input } from "@/components/ui/input";
 import { useForm, type FieldErrors } from "react-hook-form";
 import {
@@ -43,8 +35,17 @@ import api from "@/models/auth/refresh";
 import { deletImage } from "@/services/imageKitService";
 import clsx from "clsx";
 import { Textarea } from "@/components/ui/textarea";
-import type { ProfileData } from "@hokori/types";
+import {
+  SOCIAL_PLATFORMS,
+  normalizeUrl,
+  type ProfileData,
+  type SocialPlatform,
+} from "@hokori/types";
 import { useAppSelector } from "@/lib/hooks";
+import { useAppDispatch } from "@/app/store";
+import { setSocialLinks } from "../features/profileSlice";
+import { setSocialLinksApi } from "@/services/socialService";
+import { PLATFORM_META } from "@/models/preview/lib";
 
 interface ProfileFormProps {
   open: boolean;
@@ -99,6 +100,25 @@ export default function ProfileForm({
 
   const inputRef = useRef<HTMLInputElement>(null);
   const userId = useAppSelector((state) => state.auth.user?.userId);
+  const dispatch = useAppDispatch();
+  const storeLinks = useAppSelector((state) => {
+    const block = state.profile.blocks.find((b) => b.type === "PersonalInfo");
+    return block?.type === "PersonalInfo"
+      ? (block.data?.socialLinks ?? [])
+      : [];
+  });
+  const [socialUrls, setSocialUrls] = useState<
+    Partial<Record<SocialPlatform, string>>
+  >({});
+
+  useEffect(() => {
+    if (!open) return;
+    setSocialUrls(
+      Object.fromEntries(storeLinks.map((l) => [l.platform, l.url])),
+    );
+    // Only reseed when the dialog opens.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
   const form = useForm<EventAddPayload>({
     resolver: zodResolver(eventAddSchema),
     defaultValues: getProfileFormValues(initialData),
@@ -127,59 +147,29 @@ export default function ProfileForm({
           values,
           getProfileFormValues(initialData)
         );
-
-        if (Object.keys(changedValues).length === 0) {
-          toast("No profile changes to save");
-          onOpenChange(false);
-          return;
+        if (Object.keys(changedValues).length > 0) {
+          const result = await UpdateProfile(changedValues);
+          onSaved?.(result.data.data);
         }
-
-        const result = await UpdateProfile(changedValues);
+      } else {
+        const result = await AddProfile(values);
         onSaved?.(result.data.data);
-        toast("Profile Updated");
-        onOpenChange(false);
-        return;
       }
 
-      const result = await AddProfile(values);
-      onSaved?.(result.data.data);
-      toast("Profile Added");
+      // Social links live in their own table; saved as a full set.
+      const links = SOCIAL_PLATFORMS.filter((p) =>
+        socialUrls[p]?.trim(),
+      ).map((p) => ({ platform: p, url: normalizeUrl(socialUrls[p]!) }));
+      const savedLinks = await setSocialLinksApi({ links });
+      dispatch(setSocialLinks(savedLinks));
+
+      toast(initialData ? "Profile Updated" : "Profile Added");
       onOpenChange(false);
     } catch {
       toast.error("Something went wrong while saving your profile");
     }
   }
 
-  const socialPlatforms = [
-    {
-      key: "instagramUrl",
-      icon: IconBrandInstagram,
-      placeholder: "@username",
-      color: "from-pink-500 to-purple-600",
-      label: "Instagram",
-    },
-    {
-      key: "githubUrl",
-      icon: IconBrandGithub,
-      placeholder: "username",
-      color: "from-gray-700 to-gray-900",
-      label: "GitHub",
-    },
-    {
-      key: "xUrl",
-      icon: IconBrandX,
-      placeholder: "@username",
-      color: "from-blue-400 to-blue-600",
-      label: "Twitter",
-    },
-    {
-      key: "linkedInUrl",
-      icon: IconBrandLinkedin,
-      placeholder: "profile-url",
-      color: "from-blue-600 to-blue-800",
-      label: "LinkedIn",
-    },
-  ] as const;
 
   const handleUpload = async (
     file: File,
@@ -257,7 +247,9 @@ export default function ProfileForm({
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit, onError)}>
             <DialogHeader className="border-b pb-3 mb-2">
-              <DialogTitle> Complete Your Profile</DialogTitle>
+              <DialogTitle className="font-display">
+                Complete Your Profile
+              </DialogTitle>
               <DialogDescription>
                 Let's set up your developer profile and social links
               </DialogDescription>
@@ -265,10 +257,10 @@ export default function ProfileForm({
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* LEFT SIDE */}
-              <div className="bg-white/10 backdrop-blur-lg border rounded-2xl p-6 ">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center">
-                    <User className="w-4 h-4 text-white" />
+              <div className="rounded-lg border bg-card p-6">
+                <h3 className="text-lg font-display font-semibold text-foreground mb-4 flex items-center gap-2">
+                  <div className="size-6 rounded-md border bg-muted flex items-center justify-center">
+                    <User className="size-4 text-muted-foreground" />
                   </div>
                   Personal Info
                 </h3>
@@ -318,7 +310,7 @@ export default function ProfileForm({
                                       {removeLoading ? (
                                         <IconLoader2 className="h-4 w-4 text-gray-500 animate-spin" />
                                       ) : (
-                                        <IconX className="size-4 text-purple-700" />
+                                        <IconX className="size-4 text-foreground" />
                                       )}
                                     </button>
                                   )}
@@ -366,12 +358,12 @@ export default function ProfileForm({
                         <FormControl>
                           <div className="relative">
                             <div className="absolute left-3 top-1/2 transform -translate-y-1/2 z-10">
-                              <User className="w-4 h-4 text-gray-400" />
+                              <User className="size-4 text-muted-foreground" />
                             </div>
                             <Input
                               type="text"
                               placeholder="Your Name"
-                              className="w-full pl-10 pr-4 py-3 shadow-none h-13 focus:border-blue-500"
+                              className="w-full pl-10 pr-4 py-3 shadow-none h-13"
                               {...field}
                             />
                           </div>
@@ -393,12 +385,12 @@ export default function ProfileForm({
                         <FormControl>
                           <div className="relative">
                             <div className="absolute left-3 top-1/2 transform -translate-y-1/2 z-10">
-                              <Briefcase className="w-4 h-4 text-gray-400" />
+                              <Briefcase className="size-4 text-muted-foreground" />
                             </div>
                             <Input
                               type="text"
                               placeholder="Your Developer Role"
-                              className="w-full pl-10 pr-4 py-3 shadow-none h-13 focus:border-purple-500"
+                              className="w-full pl-10 pr-4 py-3 shadow-none h-13"
                               {...field}
                             />
                           </div>
@@ -411,50 +403,42 @@ export default function ProfileForm({
               </div>
 
               {/* RIGHT SIDE */}
-              <div className="bg-white/10 backdrop-blur-lg border  rounded-2xl p-6 ">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-lg bg-gradient-to-r from-pink-500 to-orange-500 flex items-center justify-center">
-                    <IconPin className={`w-4 h-4 text-white`} />
+              <div className="rounded-lg border bg-card p-6">
+                <h3 className="text-lg font-display font-semibold text-foreground mb-4 flex items-center gap-2">
+                  <div className="size-6 rounded-md border bg-muted flex items-center justify-center">
+                    <IconPin className="size-4 text-muted-foreground" />
                   </div>
                   Social Links
                 </h3>
 
-                <div className="space-y-3">
-                  {socialPlatforms.map((platform) => {
-                    const IconComponent = platform.icon;
+                <div className="max-h-80 space-y-3 overflow-y-auto pr-1">
+                  {SOCIAL_PLATFORMS.map((platform) => {
+                    const { label, Icon } = PLATFORM_META[platform];
                     return (
-                      <FormField
-                        key={platform.key}
-                        control={form.control}
-                        name={platform.key}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormControl>
-                              <div className="relative group">
-                                <div className="absolute left-3 top-1/2 transform -translate-y-1/2 z-10">
-                                  <div
-                                    className={`w-8 h-8 rounded-lg bg-gradient-to-r ${platform.color} flex items-center justify-center transition-transform duration-200 group-hover:scale-110`}
-                                  >
-                                    <IconComponent className="w-4 h-4 text-gray-200" />
-                                  </div>
-                                </div>
-                                <Input
-                                  type="text"
-                                  placeholder={platform.placeholder}
-                                  className="w-full pl-14 pr-16 py-3 text-sm h-13"
-                                  {...field}
-                                />
-                                <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                                  <span className="text-xs text-gray-600 font-medium hidden sm:inline">
-                                    {platform.label}
-                                  </span>
-                                </div>
-                              </div>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                      <div key={platform} className="relative group">
+                        <div className="absolute left-3 top-1/2 transform -translate-y-1/2 z-10">
+                          <div className="size-8 rounded-md border bg-muted flex items-center justify-center">
+                            <Icon className="size-4 text-muted-foreground" />
+                          </div>
+                        </div>
+                        <Input
+                          type="text"
+                          placeholder={`${label.toLowerCase()}.com/you`}
+                          className="w-full pl-14 pr-16 py-3 text-sm h-13"
+                          value={socialUrls[platform] ?? ""}
+                          onChange={(e) =>
+                            setSocialUrls((prev) => ({
+                              ...prev,
+                              [platform]: e.target.value,
+                            }))
+                          }
+                        />
+                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                          <span className="text-xs text-muted-foreground font-medium hidden sm:inline">
+                            {label}
+                          </span>
+                        </div>
+                      </div>
                     );
                   })}
                 </div>
@@ -470,17 +454,17 @@ export default function ProfileForm({
                       <FormControl>
                         <div className="relative">
                           <div className="absolute left-3 top-1/2 transform -translate-y-1/2 z-10">
-                            <Pen className="w-4 h-4 text-gray-400" />
+                            <Pen className="size-4 text-muted-foreground" />
                           </div>
                           <Textarea
-                            placeholder="I am a pull stack dev.."
-                            className="w-full pl-10 pr-4 py-3 shadow-none h-13 focus:border-blue-500"
+                            placeholder="I build full stack apps and write about what I learn."
+                            className="w-full pl-10 pr-4 py-3 shadow-none h-13"
                             {...field}
                           />
                         </div>
                       </FormControl>
                       <FormDescription>
-                        Write somethn abt you're self
+                        Write a short line about yourself.
                       </FormDescription>
                       <FormMessage />
                     </FormItem>

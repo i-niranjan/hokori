@@ -4,35 +4,37 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import {
-  IconBrandGithub,
-  IconBrandInstagram,
-  IconBrandLinkedin,
-  IconBrandX,
-  IconCirclePlus,
-  IconEdit,
-} from "@tabler/icons-react";
+import { IconCirclePlus, IconEdit } from "@tabler/icons-react";
 import { getInitials } from "@/helpers/helper";
+import { ProfileGlyph } from "./BlockIcons";
 import ProfileForm from "../form/ProfileForm";
 import api from "@/models/auth/refresh";
 import { useAppSelector } from "@/lib/hooks";
 import { useAppDispatch } from "@/app/store";
-import { setProfileData } from "../features/profileSlice";
+import { setProfileData, setSocialLinks } from "../features/profileSlice";
+import { getSocialLinks as fetchSocialLinks } from "@/services/socialService";
+import { PLATFORM_META } from "@/models/preview/lib";
 
 function PersonalInfo() {
   const dispatch = useAppDispatch();
-  const profileData = useAppSelector(
-    (state) =>
-      state.profile.blocks.find((b) => b.type === "PersonalInfo")?.data,
-  );
+  const blockData = useAppSelector((state) => {
+    const block = state.profile.blocks.find((b) => b.type === "PersonalInfo");
+    return block?.type === "PersonalInfo" ? block.data : null;
+  });
+  const profileData = blockData?.profile ?? null;
+  const socialLinks = blockData?.socialLinks ?? [];
   const [loading, setLoading] = useState(true);
   const [openForm, setOpenForm] = useState(false);
 
   useEffect(() => {
     (async () => {
       try {
-        const result = await api.get("/component/profile/getProfile");
-        dispatch(setProfileData(result.data.data || null));
+        const [profileResult, links] = await Promise.all([
+          api.get("/component/profile/getProfile"),
+          fetchSocialLinks(),
+        ]);
+        dispatch(setProfileData(profileResult.data.data || null));
+        dispatch(setSocialLinks(links));
       } catch {
         toast.error("Something went wrong, Please Try Again");
       } finally {
@@ -45,13 +47,13 @@ function PersonalInfo() {
     <>
       <div className="h-max w-full  rounded-md border bg-card flex overflow-hidden">
         <div className="flex flex-col gap-3 w-full px-4 py-4">
-          <div className="flex items-baseline justify-between border-b pb-2">
-            <span className="font-display text-lg font-semibold text-foreground">
-              Profile
-            </span>
-            <span className="font-display text-xs text-muted-foreground">
-              基本情報
-            </span>
+          <div className="flex items-center justify-between border-b pb-2">
+            <div className="flex items-center gap-2">
+              <ProfileGlyph className="size-5 text-foreground" />
+              <span className="font-display text-lg font-semibold text-foreground">
+                Profile
+              </span>
+            </div>
           </div>
 
           {loading ? (
@@ -85,59 +87,21 @@ function PersonalInfo() {
                       </span>
                     </div>
                   </div>
-                  <div className="flex gap-2 py-2">
-                    <Button
-                      disabled={!profileData.instagram}
-                      variant="outline"
-                      size="icon"
-                      onClick={() =>
-                        window.open(
-                          `https://instagram.com/${profileData.instagram}`,
-                          "_blank",
-                        )
-                      }
-                    >
-                      <IconBrandInstagram className="size-5" />
-                    </Button>
-                    <Button
-                      disabled={!profileData.github}
-                      variant="outline"
-                      size="icon"
-                      onClick={() =>
-                        window.open(
-                          `https://github.com/${profileData.github}`,
-                          "_blank",
-                        )
-                      }
-                    >
-                      <IconBrandGithub className="size-5" />
-                    </Button>
-                    <Button
-                      disabled={!profileData.twitter}
-                      variant="outline"
-                      size="icon"
-                      onClick={() =>
-                        window.open(
-                          `https://x.com/${profileData.twitter}`,
-                          "_blank",
-                        )
-                      }
-                    >
-                      <IconBrandX className="size-5" />
-                    </Button>
-                    <Button
-                      disabled={!profileData.linkedin}
-                      variant="outline"
-                      size="icon"
-                      onClick={() =>
-                        window.open(
-                          `https://linkedin.com/in/${profileData.linkedin}`,
-                          "_blank",
-                        )
-                      }
-                    >
-                      <IconBrandLinkedin className="size-5" />
-                    </Button>
+                  <div className="flex flex-wrap gap-2 py-2">
+                    {socialLinks.map((link) => {
+                      const { label, Icon } = PLATFORM_META[link.platform];
+                      return (
+                        <Button
+                          key={link.id}
+                          variant="outline"
+                          size="icon"
+                          aria-label={label}
+                          onClick={() => window.open(link.url, "_blank")}
+                        >
+                          <Icon className="size-5" />
+                        </Button>
+                      );
+                    })}
 
                     <Button onClick={() => setOpenForm(true)}>
                       <IconEdit /> Edit
@@ -175,8 +139,8 @@ const ProfileDataSkeleton = () => (
   <div className="flex items-center space-x-4">
     <Skeleton className="h-12 w-12 rounded-full" />
     <div className="space-y-2">
-      <Skeleton className="h-4 w-[250px]" />
-      <Skeleton className="h-4 w-[200px]" />
+      <Skeleton className="h-4 w-62.5" />
+      <Skeleton className="h-4 w-50" />
     </div>
   </div>
 );

@@ -46,32 +46,33 @@ The readme's V1 list is too large to ship. Rulings:
 
 Make the base production-grade before building on it.
 
-- [ ] **`Page` model** (Prisma): `{ id, userId, theme, published, blocks Json }` where
+- [x] **`Page` model** (Prisma): `{ id, userId, theme, published, blocks Json }` where
       `blocks` is the ordered `[{ id, type, visible }]` skeleton (block *data* stays in
       its own tables). Endpoints: `GET/PUT /page`. Hydrate Redux from it on dashboard load;
       persist `activeTheme` here (closes the known gap: theme currently resets on reload).
-- [ ] **Validation & safety on server**: zod request validation middleware, `helmet`,
+- [x] **Validation & safety on server**: zod request validation middleware, `helmet`,
       rate limiting on auth routes, central env validation (fail fast on missing vars).
-- [ ] **Shared types discipline**: move `Block`, `BlockType`, `ThemeId` into
+- [x] **Shared types discipline**: move `Block`, `BlockType`, `ThemeId` into
       `packages/types` so server and web share one contract.
-- [ ] **Web hygiene**: route-level code splitting (`React.lazy`) — the bundle is 813 kB;
-      Axios error interceptor with consistent toasts.
-- [ ] **CI**: GitHub Action running `turbo build` + typecheck on PR.
+- [x] **Web hygiene**: route-level code splitting (`React.lazy`) — the bundle is 813 kB;
+      Axios error interceptor with consistent toasts. *(splitting done: 813→666 kB; also
+      fixed the store/authSlice/refresh circular import)*
+- [x] **CI**: GitHub Action running `turbo build` + typecheck on PR.
 
 ## Phase 1 — Tracer bullet: the public profile is LIVE (~1–2 weeks)
 
 The product exists at the end of this phase. Everything else is iteration.
 
-- [ ] **Public read API**: `GET /public/:username` — no auth — returns profile + page
+- [x] **Public read API**: `GET /public/:username` — no auth — returns profile + page
       config + (later) skills/projects in one payload. 404 when unpublished.
-- [ ] **Public route** `/:username` in the web app rendering the **same
+- [x] **Public route** `/:username` in the web app rendering the **same
       `models/preview` themes** (they're pure props-in components by design — this is
       why). Promote `models/preview` → `packages/preview` only if/when a separate public
       app appears; for now one app, two routes.
-- [ ] **Publish toggle** in dashboard (writes `Page.published`).
-- [ ] **Username claim UX**: availability check on signup, reserved-words list
-      (`auth`, `dashboard`, `api`, `settings`, …).
-- [ ] **SEO minimum**: `react-helmet-async` title/description/OG tags per profile.
+- [x] **Publish toggle** in dashboard (writes `Page.published`).
+- [x] **Username claim UX**: reserved-words list + format rules enforced server-side.
+      *(live availability check in the signup form still pending)*
+- [x] **SEO minimum**: `react-helmet-async` title/description/OG tags per profile.
       (SSR/prerender is post-V1; OG tags from an SPA are imperfect — accept for V1,
       mitigate with the OG-image endpoint in Phase 5.)
 - [ ] **Deploy**: server + Postgres + web on real infra, custom domain, HTTPS.
@@ -82,16 +83,19 @@ The product exists at the end of this phase. Everything else is iteration.
 Each block = Prisma model (+ routes) → editor card (left) → renderer in **both** themes
 (the typed `ThemeRenderers` map enforces this at compile time) → entry in `BlockType`.
 
-- [ ] **Skills block** — model exists. CRUD routes, tag-style editor with autocomplete
-      from a curated icon set, marquee/grid renderers.
-- [ ] **Projects block** — model exists. Add `longDesc`, `tags`, `order`. CRUD routes,
-      thumbnail upload via ImageKit, card renderers. (This doubles as case studies.)
+- [x] **Skills block** — CRUD routes, tag editor (comma/Enter to add, 40 cap, dupe
+      check), renderers in both themes. *(icon autocomplete still pending)*
+- [x] **Projects block** — CRUD routes (link/thumbnail now optional), inline add form,
+      card renderers in both themes. *(thumbnail upload + longDesc/tags still pending)*
+- [x] **Block composition UI** *(added beyond plan)* — picker modal with custom SVG
+      glyphs, add/hide/remove per block persisted to `Page.blocks`, ghost skeletons in
+      preview for empty blocks, new pages start with Profile only.
 - [ ] **Social links v2** — replace the 4 hardcoded Profile columns with a
       `SocialLink { platform, url, order }` table: GitHub, LinkedIn, X, Instagram,
       Behance, Dribbble, YouTube, website, blog. Migration backfills existing columns.
 - [ ] **Resume block** — PDF upload (ImageKit), inline view + download button renderer.
-- [ ] **Block reordering & visibility** — drag-to-reorder in dashboard (dnd-kit),
-      persists to `Page.blocks`; preview reflects order live.
+- [ ] **Block reordering** — drag-to-reorder in dashboard (dnd-kit), persists to
+      `Page.blocks`; preview reflects order live. *(visibility toggle already done)*
 
 ## Phase 3 — Developer stats & integrations (~1–2 weeks)
 

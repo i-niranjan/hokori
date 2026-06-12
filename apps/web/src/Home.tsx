@@ -7,17 +7,14 @@ import { Card } from "./components/ui/card";
 const features = [
   {
     title: "Your Profile",
-    sub: "プロフィール",
     desc: "A single page that introduces you, your way.",
   },
   {
     title: "Your Story",
-    sub: "物語",
     desc: "Long-form sections for the work behind the work.",
   },
   {
     title: "Your Work",
-    sub: "作品",
     desc: "Showcase projects, links, and what you're proud of.",
   },
 ];
@@ -34,12 +31,13 @@ function Home() {
           <span className="font-display text-sm uppercase tracking-[0.2em] text-muted-foreground">
             Pride in your journey
           </span>
-          <h1 className="font-display text-5xl font-semibold leading-[1.05] tracking-tight md:text-6xl">
-            A niche-first profile
+          <h1 className="font-display text-5xl font-medium leading-[1.04] tracking-tight md:text-7xl">
+            A profile for
             <br />
-            for the work
+            the work you&apos;re
             <br />
-            <span className="text-primary">you&apos;re proud of.</span>
+            <em className="font-light text-primary">proud of</em>
+            <span className="text-primary">.</span>
           </h1>
           <p className="max-w-md text-base text-muted-foreground">
             Hokori is a quiet, opinionated home for developers, designers,
@@ -61,7 +59,7 @@ function Home() {
           <Card className="w-full max-w-sm rounded-md border bg-card p-6 shadow-none">
             <div className="flex items-baseline justify-between border-b pb-3">
               <span className="font-display text-sm font-semibold">
-                Hokori
+                hokori<span className="text-primary">.</span>
               </span>
               <span className="font-display text-xs text-muted-foreground">
                 誇り
@@ -93,14 +91,9 @@ function Home() {
         <div className="grid gap-10 md:grid-cols-3">
           {features.map((f) => (
             <div key={f.title} className="flex flex-col gap-2">
-              <div className="flex items-baseline gap-2">
-                <h3 className="font-display text-lg font-semibold">
-                  {f.title}
-                </h3>
-                <span className="font-display text-xs text-muted-foreground">
-                  {f.sub}
-                </span>
-              </div>
+              <h3 className="font-display text-lg font-semibold">
+                {f.title}
+              </h3>
               <p className="text-sm text-muted-foreground">{f.desc}</p>
             </div>
           ))}

@@ -1,10 +1,22 @@
-import type { BlockType, ProfileData, SkillData } from "@hokori/types";
+import type {
+  BlockType,
+  ProfileData,
+  ProjectData,
+  SkillData,
+  SocialLinkData,
+} from "@hokori/types";
 
 export type { BlockType };
 
+export interface PersonalInfoBlockData {
+  profile: ProfileData | null;
+  socialLinks: SocialLinkData[];
+}
+
 export interface BlockDataMap {
-  PersonalInfo: ProfileData;
+  PersonalInfo: PersonalInfoBlockData;
   Skills: SkillData[];
+  Projects: ProjectData[];
 }
 
 interface BaseBlock<T extends BlockType> {

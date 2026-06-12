@@ -9,18 +9,11 @@ import {
   type UpdatePagePayload,
 } from "@hokori/types";
 
+// New pages start with the Profile block only; everything else is opt-in
+// via "Add block" so the composition stays user-driven.
 const DEFAULT_BLOCKS: PageBlockConfig[] = [
   { id: "personal-info", type: "PersonalInfo", visible: true },
-  { id: "skills", type: "Skills", visible: true },
 ];
-
-/** Pages saved before a block type existed get it appended (visible). */
-const withMissingDefaults = (blocks: PageBlockConfig[]): PageBlockConfig[] => {
-  const missing = DEFAULT_BLOCKS.filter(
-    (def) => !blocks.some((b) => b.type === def.type)
-  );
-  return missing.length > 0 ? [...blocks, ...missing] : blocks;
-};
 
 // PageBlockConfig[] is valid JSON but Prisma's InputJsonValue rejects
 // interface arrays without index signatures.
@@ -49,9 +42,7 @@ export const toPageConfig = (page: {
   id: page.id,
   theme: isValidTheme(page.theme) ? page.theme : "minimal",
   published: page.published,
-  blocks: withMissingDefaults(
-    isValidBlocks(page.blocks) ? page.blocks : DEFAULT_BLOCKS
-  ),
+  blocks: isValidBlocks(page.blocks) ? page.blocks : DEFAULT_BLOCKS,
 });
 
 export const pageService = {

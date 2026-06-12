@@ -1,4 +1,3 @@
-import { GiShintoShrine } from "react-icons/gi";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -8,11 +7,12 @@ type Props = {
 };
 
 const sizes = {
-  sm: { icon: 18, text: "text-base", sub: "text-[10px]" },
-  md: { icon: 22, text: "text-xl", sub: "text-xs" },
-  lg: { icon: 32, text: "text-3xl", sub: "text-sm" },
+  sm: { text: "text-lg", sub: "text-[10px]" },
+  md: { text: "text-2xl", sub: "text-xs" },
+  lg: { text: "text-4xl", sub: "text-sm" },
 };
 
+/** Wordmark: lowercase serif with a vermillion full stop. */
 export default function HokoriMark({
   className = "",
   size = "md",
@@ -20,16 +20,20 @@ export default function HokoriMark({
 }: Props) {
   const s = sizes[size];
   return (
-    <div className={cn("flex items-center gap-2", className)}>
-      <GiShintoShrine size={s.icon} className="text-primary shrink-0" />
-      <div className="flex items-baseline gap-1.5">
-        <span className={cn("font-display font-semibold tracking-tight text-foreground", s.text)}>
-          Hokori
-        </span>
-        {showSubscript && (
-          <span className={cn("font-display text-primary/80", s.sub)}>誇り</span>
+    <div className={cn("flex items-baseline gap-2", className)}>
+      <span
+        className={cn(
+          "font-display font-semibold tracking-tight text-foreground",
+          s.text,
         )}
-      </div>
+      >
+        hokori<span className="text-primary">.</span>
+      </span>
+      {showSubscript && (
+        <span className={cn("font-display text-muted-foreground", s.sub)}>
+          誇り
+        </span>
+      )}
     </div>
   );
 }

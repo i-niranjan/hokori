@@ -13,10 +13,22 @@ model User {
   firstName String
   lastName  String
   password  String
-  Project   Project[]
-  Skill     Skill[]
-  Profile   Profile?
-  Page      Page?
+  Project    Project[]
+  Skill      Skill[]
+  Profile    Profile?
+  Page       Page?
+  SocialLink SocialLink[]
+}
+
+model SocialLink {
+  id       String @id @default(cuid())
+  userId   String
+  platform String
+  url      String
+  order    Int    @default(0)
+  user     User   @relation(fields: [userId], references: [id])
+
+  @@unique([userId, platform])
 }
 
 model Page {
@@ -30,13 +42,15 @@ model Page {
 }
 
 model Project {
-  id        String @id @default(cuid())
-  title     String
-  desc      String
-  link      String
-  thumbnail String
-  userId    String
-  user      User   @relation(fields: [userId], references: [id])
+  id              String  @id @default(cuid())
+  title           String
+  desc            String
+  longDesc        String?
+  link            String?
+  thumbnail       String?
+  thumbnailFileId String?
+  userId          String
+  user            User    @relation(fields: [userId], references: [id])
 }
 
 model Skill {

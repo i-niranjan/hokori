@@ -1,8 +1,5 @@
-import { Button } from "@/components/ui/button";
-import { IconPlus } from "@tabler/icons-react";
-
-import PersonalInfo from "@/models/blocks/components/PersonalInfo";
-import SkillsBlock from "@/models/blocks/components/SkillsBlock";
+import BlockList from "@/models/blocks/components/BlockList";
+import AddBlockButton from "@/models/blocks/components/AddBlockButton";
 import PreviewCanvas from "@/models/preview/components/PreviewCanvas";
 import ThemeController from "@/models/preview/components/ThemeController";
 import PublishToggle from "../components/PublishToggle";
@@ -36,12 +33,7 @@ function Dashboard() {
             Compose your Hokori page, one block at a time.
           </p>
         </div>
-        <div className="flex items-center gap-4">
-          <PublishToggle />
-          <span className="font-display text-sm text-muted-foreground hidden sm:inline">
-            ダッシュボード
-          </span>
-        </div>
+        <PublishToggle />
       </div>
 
       <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_22rem]">
@@ -50,12 +42,9 @@ function Dashboard() {
             <h2 className="font-display text-sm font-medium uppercase tracking-wider text-muted-foreground">
               Blocks
             </h2>
-            <Button size="sm" variant="outline">
-              <IconPlus className="size-4" /> Add block
-            </Button>
+            <AddBlockButton />
           </div>
-          <PersonalInfo />
-          <SkillsBlock />
+          <BlockList />
         </section>
 
         <aside className="flex flex-col gap-4">

@@ -1,5 +1,9 @@
 import prisma from "../lib/prisma.js";
-import type { ProfileData, PublicProfilePayload } from "@hokori/types";
+import type {
+  ProfileData,
+  PublicProfilePayload,
+  SocialLinkData,
+} from "@hokori/types";
 import { toPageConfig } from "./page.service.js";
 
 export const publicService = {
@@ -8,7 +12,13 @@ export const publicService = {
   ): Promise<PublicProfilePayload> => {
     const user = await prisma.user.findUnique({
       where: { userName: username },
-      include: { Profile: true, Page: true, Skill: { orderBy: { id: "asc" } } },
+      include: {
+        Profile: true,
+        Page: true,
+        Skill: { orderBy: { id: "asc" } },
+        Project: { orderBy: { id: "asc" } },
+        SocialLink: { orderBy: { order: "asc" } },
+      },
     });
 
     if (!user || !user.Page || !user.Page.published) {
@@ -44,6 +54,19 @@ export const publicService = {
         id: s.id,
         name: s.name,
         icon: s.icon,
+      })),
+      projects: user.Project.map((p) => ({
+        id: p.id,
+        title: p.title,
+        desc: p.desc,
+        longDesc: p.longDesc,
+        link: p.link,
+        thumbnail: p.thumbnail,
+      })),
+      socialLinks: user.SocialLink.map((s) => ({
+        id: s.id,
+        platform: s.platform as SocialLinkData["platform"],
+        url: s.url,
       })),
     };
   },

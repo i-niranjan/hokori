@@ -12,9 +12,6 @@ export default function Insights() {
             See how visitors discover and engage with your Hokori.
           </p>
         </div>
-        <span className="font-display text-sm text-muted-foreground hidden sm:inline">
-          洞察
-        </span>
       </div>
 
       <Card className="mt-10 mx-auto flex max-w-md flex-col items-center gap-3 rounded-md border bg-card p-10 text-center shadow-none">

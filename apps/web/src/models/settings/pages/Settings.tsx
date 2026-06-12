@@ -20,9 +20,6 @@ export default function Settings() {
             Manage your account and how Hokori looks to you.
           </p>
         </div>
-        <span className="font-display text-sm text-muted-foreground hidden sm:inline">
-          設定
-        </span>
       </div>
 
       <Tabs defaultValue="profile" className="mt-8">
