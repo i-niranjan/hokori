@@ -1,4 +1,4 @@
-import { Card } from "@/components/ui/card";
+import CookingCard from "@/components/cooking-card";
 
 export default function Insights() {
   return (
@@ -14,13 +14,10 @@ export default function Insights() {
         </div>
       </div>
 
-      <Card className="mt-10 mx-auto flex max-w-md flex-col items-center gap-3 rounded-md border bg-card p-10 text-center shadow-none">
-        <span className="size-2.5 rounded-full bg-primary" aria-hidden />
-        <h2 className="font-display text-xl">No data yet</h2>
-        <p className="text-sm text-muted-foreground">
-          Publish your page to start collecting analytics.
-        </p>
-      </Card>
+      <CookingCard
+        title="Insights are on the way"
+        description="Page views, referrers and visitor trends for your public page. We're building it now."
+      />
     </div>
   );
 }

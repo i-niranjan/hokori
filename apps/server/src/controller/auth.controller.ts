@@ -2,6 +2,7 @@ import { AuthService } from "../services/auth.service.js";
 import { Request, Response, NextFunction } from "express";
 import { generateToken, verifyRefreshToken } from "../utils/jwt.js";
 import { env } from "../lib/env.js";
+import { refreshCookieOptions } from "../utils/cookies.js";
 import jwt from "jsonwebtoken";
 
 const ACCESS_SECRET = env.ACCESS_SECRET;
@@ -24,11 +25,7 @@ export const AuthController = {
 
       const token = generateToken({ id: user.id, email: user.email });
 
-      res.cookie("refreshToken", token.refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
-      });
+      res.cookie("refreshToken", token.refreshToken, refreshCookieOptions);
 
       res.status(201).json({
         user: sanitizeUser(user),
@@ -48,11 +45,7 @@ export const AuthController = {
 
       const token = generateToken({ id: user.id, email: user.email });
 
-      res.cookie("refreshToken", token.refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
-      });
+      res.cookie("refreshToken", token.refreshToken, refreshCookieOptions);
 
       res.status(200).json({
         user: sanitizeUser(user),

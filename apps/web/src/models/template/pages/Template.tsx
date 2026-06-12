@@ -1,6 +1,4 @@
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { IconPlus } from "@tabler/icons-react";
+import CookingCard from "@/components/cooking-card";
 
 export default function Template() {
   return (
@@ -16,16 +14,10 @@ export default function Template() {
         </div>
       </div>
 
-      <Card className="mt-10 mx-auto flex max-w-md flex-col items-center gap-4 rounded-md border bg-card p-10 text-center shadow-none">
-        <span className="size-2.5 rounded-full bg-primary" aria-hidden />
-        <h2 className="font-display text-xl">No templates yet</h2>
-        <p className="text-sm text-muted-foreground">
-          Browse the gallery or create one from your current dashboard.
-        </p>
-        <Button size="sm">
-          <IconPlus className="size-4" /> New template
-        </Button>
-      </Card>
+      <CookingCard
+        title="Templates are on the way"
+        description="Curated page layouts you can start from with one click. We're shaping them now."
+      />
     </div>
   );
 }

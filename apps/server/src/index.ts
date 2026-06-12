@@ -18,10 +18,17 @@ import cookieParser from "cookie-parser";
 const PORT = env.PORT;
 const app = express();
 
+// Behind a reverse proxy (most hosts) the client IP arrives in
+// X-Forwarded-For; without this the rate limiter throttles the proxy.
+app.set("trust proxy", 1);
+
+// CLIENT_URL supports a comma-separated list (e.g. prod + preview URLs).
+const allowedOrigins = env.CLIENT_URL.split(",").map((url) => url.trim());
+
 app.use(helmet());
 app.use(
   cors({
-    origin: env.CLIENT_URL,
+    origin: allowedOrigins,
     credentials: true,
   })
 );

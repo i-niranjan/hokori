@@ -7,7 +7,17 @@ const envSchema = z.object({
   DATABASE_URL: z.string().min(1),
   ACCESS_SECRET: z.string().min(16),
   REFRESH_SECRET: z.string().min(16),
-  CLIENT_URL: z.string().url(),
+  // One URL or a comma-separated list (prod + preview origins).
+  CLIENT_URL: z
+    .string()
+    .min(1)
+    .refine(
+      (value) =>
+        value
+          .split(",")
+          .every((part) => z.string().url().safeParse(part.trim()).success),
+      { message: "CLIENT_URL must be a URL or comma-separated URLs" },
+    ),
   IMAGEKIT_URL_ENDPOINT: z.string().url(),
   IMAGEKIT_PUBLIC_KEY: z.string().min(1),
   IMAGEKIT_PRIVATE_KEY: z.string().min(1),
