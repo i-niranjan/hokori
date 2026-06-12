@@ -3,9 +3,11 @@ import type { BlockType } from "@hokori/types";
 import PersonalInfo from "./components/PersonalInfo";
 import SkillsBlock from "./components/SkillsBlock";
 import ProjectsBlock from "./components/ProjectsBlock";
+import ResumeBlock from "./components/ResumeBlock";
 import {
   ProfileGlyph,
   ProjectsGlyph,
+  ResumeGlyph,
   SkillsGlyph,
 } from "./components/BlockIcons";
 
@@ -47,5 +49,14 @@ export const BLOCK_REGISTRY: Record<BlockType, BlockMeta> = {
     icon: ProjectsGlyph,
     removable: true,
     Editor: ProjectsBlock,
+  },
+  Resume: {
+    label: "Resume",
+    description: "Share your resume as a PDF",
+    detail:
+      "Upload your resume once; visitors can view or download it straight from your page.",
+    icon: ResumeGlyph,
+    removable: true,
+    Editor: ResumeBlock,
   },
 };

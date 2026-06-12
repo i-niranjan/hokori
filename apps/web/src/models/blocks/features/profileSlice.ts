@@ -4,6 +4,7 @@ import type {
   PageConfig,
   ProfileData,
   ProjectData,
+  ResumeData,
   SkillData,
   SocialLinkData,
 } from "@hokori/types";
@@ -21,6 +22,7 @@ export const BLOCK_IDS: Record<BlockType, string> = {
   PersonalInfo: "personal-info",
   Skills: "skills",
   Projects: "projects",
+  Resume: "resume",
 };
 
 const initialState: ProfileState = {
@@ -67,6 +69,12 @@ export const profileSlice = createSlice({
     setProjects: (state, action: PayloadAction<ProjectData[]>) => {
       const block = state.blocks.find((b) => b.type === "Projects");
       if (block && block.type === "Projects") {
+        block.data = action.payload;
+      }
+    },
+    setResume: (state, action: PayloadAction<ResumeData | null>) => {
+      const block = state.blocks.find((b) => b.type === "Resume");
+      if (block && block.type === "Resume") {
         block.data = action.payload;
       }
     },
@@ -122,6 +130,7 @@ export const {
   setSocialLinks,
   setSkills,
   setProjects,
+  setResume,
   addBlock,
   removeBlock,
   setBlocksOrder,

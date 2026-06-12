@@ -85,17 +85,18 @@ Each block = Prisma model (+ routes) → editor card (left) → renderer in **bo
 
 - [x] **Skills block** — CRUD routes, tag editor (comma/Enter to add, 40 cap, dupe
       check), renderers in both themes. *(icon autocomplete still pending)*
-- [x] **Projects block** — CRUD routes (link/thumbnail now optional), inline add form,
-      card renderers in both themes. *(thumbnail upload + longDesc/tags still pending)*
+- [x] **Projects block** — CRUD routes, add/edit dialog with ImageKit banner upload and
+      long description, detail popup on the page (banner, summary, full story, visit),
+      card renderers in both themes, orphaned-file cleanup. *(tags still pending)*
 - [x] **Block composition UI** *(added beyond plan)* — picker modal with custom SVG
       glyphs, add/hide/remove per block persisted to `Page.blocks`, ghost skeletons in
       preview for empty blocks, new pages start with Profile only.
-- [ ] **Social links v2** — replace the 4 hardcoded Profile columns with a
-      `SocialLink { platform, url, order }` table: GitHub, LinkedIn, X, Instagram,
-      Behance, Dribbble, YouTube, website, blog. Migration backfills existing columns.
-- [ ] **Resume block** — PDF upload (ImageKit), inline view + download button renderer.
-- [ ] **Block reordering** — drag-to-reorder in dashboard (dnd-kit), persists to
-      `Page.blocks`; preview reflects order live. *(visibility toggle already done)*
+- [x] **Social links v2** — `SocialLink` table with all 9 platforms, backfill migration,
+      legacy Profile columns dropped, all-platform editor in ProfileForm.
+- [x] **Resume block** — PDF upload (ImageKit, 8 MB cap), view/replace/remove editor,
+      renderers in both themes, server-side file cleanup on replace/delete.
+- [x] **Block reordering** — drag-to-reorder via motion Reorder, Profile pinned first,
+      persists to `Page.blocks`, preview follows live.
 
 ## Phase 3 — Developer stats & integrations (~1–2 weeks)
 

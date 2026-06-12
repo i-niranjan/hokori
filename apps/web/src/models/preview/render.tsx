@@ -7,7 +7,7 @@ const isEmpty = (block: Block): boolean => {
   if (block.type === "PersonalInfo") {
     return !block.data.profile && block.data.socialLinks.length === 0;
   }
-  return block.data.length === 0;
+  return Array.isArray(block.data) && block.data.length === 0;
 };
 
 /**
@@ -38,5 +38,7 @@ export function renderBlock(
       return <theme.renderers.Skills key={block.id} data={block.data!} />;
     case "Projects":
       return <theme.renderers.Projects key={block.id} data={block.data!} />;
+    case "Resume":
+      return <theme.renderers.Resume key={block.id} data={block.data!} />;
   }
 }

@@ -18,6 +18,7 @@ export const publicService = {
         Skill: { orderBy: { id: "asc" } },
         Project: { orderBy: { id: "asc" } },
         SocialLink: { orderBy: { order: "asc" } },
+        Resume: true,
       },
     });
 
@@ -38,10 +39,8 @@ export const publicService = {
         name: user.Profile.name,
         title: user.Profile.title,
         bio: user.Profile.bio,
-        github: user.Profile.github,
-        instagram: user.Profile.instagram,
-        twitter: user.Profile.twitter,
-        linkedin: user.Profile.linkedin,
+        contactEmail: user.Profile.contactEmail,
+        phone: user.Profile.phone,
       };
     }
 
@@ -68,6 +67,13 @@ export const publicService = {
         platform: s.platform as SocialLinkData["platform"],
         url: s.url,
       })),
+      resume: user.Resume
+        ? {
+            id: user.Resume.id,
+            url: user.Resume.url,
+            fileName: user.Resume.fileName,
+          }
+        : null,
     };
   },
 };

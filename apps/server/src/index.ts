@@ -11,6 +11,7 @@ import publicRoutes from "./routes/public.routes.js";
 import skillRoutes from "./routes/skill.routes.js";
 import projectRoutes from "./routes/project.routes.js";
 import socialRoutes from "./routes/social.routes.js";
+import resumeRoutes from "./routes/resume.routes.js";
 import imageKitRoutes from "./routes/imagekit.routes.js";
 import cookieParser from "cookie-parser";
 
@@ -55,6 +56,7 @@ app.use("/component/profile", profileRoutes);
 app.use("/component/skill", skillRoutes);
 app.use("/component/project", projectRoutes);
 app.use("/component/social", socialRoutes);
+app.use("/component/resume", resumeRoutes);
 app.use("/page", pageRoutes);
 app.use("/public", publicRoutes);
 

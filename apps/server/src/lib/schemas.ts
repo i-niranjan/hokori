@@ -76,18 +76,18 @@ export const loginSchema = z.object({
   password: z.string().min(1),
 });
 
-const optionalUsername = z.string().max(100).optional();
-
 export const createProfileSchema = z.object({
   fullName: z.string().min(1).max(100),
   profileImageUrl: z.string().max(500),
   avatarFileId: z.string().max(200),
   role: z.string().min(1).max(100),
   bio: z.string().max(500),
-  instagramUrl: optionalUsername,
-  githubUrl: optionalUsername,
-  xUrl: optionalUsername,
-  linkedInUrl: optionalUsername,
+  contactEmail: z.string().email().max(200).optional().or(z.literal("")),
+  phone: z
+    .string()
+    .regex(/^[+\d][\d\s\-()]{5,19}$/, "Enter a valid phone number")
+    .optional()
+    .or(z.literal("")),
 });
 
 export const updateProfileSchema = createProfileSchema.partial();
@@ -111,6 +111,12 @@ export const updateProjectSchema = addProjectSchema
   .refine((data) => Object.keys(data).length > 0, {
     message: "No project fields provided for update",
   });
+
+export const setResumeSchema = z.object({
+  url: z.string().min(1).max(500),
+  fileId: z.string().min(1).max(200),
+  fileName: z.string().min(1).max(200),
+});
 
 export const setSocialLinksSchema = z.object({
   links: z

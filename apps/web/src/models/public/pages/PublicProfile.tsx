@@ -97,6 +97,7 @@ export default function PublicProfile() {
             },
             Skills: payload.skills,
             Projects: payload.projects,
+            Resume: payload.resume,
           };
           const data = dataByType[config.type];
           return renderBlock(theme, { ...config, data } as Block);

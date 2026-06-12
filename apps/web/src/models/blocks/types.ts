@@ -2,6 +2,7 @@ import type {
   BlockType,
   ProfileData,
   ProjectData,
+  ResumeData,
   SkillData,
   SocialLinkData,
 } from "@hokori/types";
@@ -17,6 +18,7 @@ export interface BlockDataMap {
   PersonalInfo: PersonalInfoBlockData;
   Skills: SkillData[];
   Projects: ProjectData[];
+  Resume: ResumeData;
 }
 
 interface BaseBlock<T extends BlockType> {

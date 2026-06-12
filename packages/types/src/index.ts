@@ -1,8 +1,26 @@
 export const THEME_IDS = ["minimal", "terminal"] as const;
 export type ThemeId = (typeof THEME_IDS)[number];
 
-export const BLOCK_TYPES = ["PersonalInfo", "Skills", "Projects"] as const;
+export const BLOCK_TYPES = [
+  "PersonalInfo",
+  "Skills",
+  "Projects",
+  "Resume",
+] as const;
 export type BlockType = (typeof BLOCK_TYPES)[number];
+
+export interface ResumeData {
+  id: string;
+  url: string;
+  fileName: string;
+  fileId?: string | null;
+}
+
+export interface SetResumePayload {
+  url: string;
+  fileId: string;
+  fileName: string;
+}
 
 export interface ProjectData {
   id: string;
@@ -102,6 +120,7 @@ export interface PublicProfilePayload {
   skills: SkillData[];
   projects: ProjectData[];
   socialLinks: SocialLinkData[];
+  resume: ResumeData | null;
 }
 
 export interface CreateProfilePayload {
@@ -110,10 +129,8 @@ export interface CreateProfilePayload {
   avatarFileId: string;
   role: string;
   bio: string;
-  instagramUrl?: string;
-  githubUrl?: string;
-  xUrl?: string;
-  linkedInUrl?: string;
+  contactEmail?: string;
+  phone?: string;
 }
 
 export type UpdateProfilePayload = Partial<CreateProfilePayload>;
@@ -124,10 +141,8 @@ export interface ProfileData {
   avatarUrl: string;
   avatarFileId: string;
   bio: string;
-  github?: string | null;
-  instagram?: string | null;
-  linkedin?: string | null;
-  twitter?: string | null;
   title: string;
   name: string;
+  contactEmail?: string | null;
+  phone?: string | null;
 }

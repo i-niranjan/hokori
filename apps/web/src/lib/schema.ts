@@ -7,10 +7,16 @@ export const eventAddSchema = z.object({
   fullName: z.string().min(2).max(50),
   bio: z.string().min(5).max(120),
   role: z.string(),
-  instagramUrl: z.string().optional(),
-  githubUrl: z.string().optional(),
-  linkedInUrl: z.string().optional(),
-  xUrl: z.string().optional(),
+  contactEmail: z
+    .string()
+    .email("Enter a valid email")
+    .optional()
+    .or(z.literal("")),
+  phone: z
+    .string()
+    .regex(/^[+\d][\d\s\-()]{5,19}$/, "Enter a valid phone number")
+    .optional()
+    .or(z.literal("")),
 });
 
 export type EventAddPayload = CreateProfilePayload;

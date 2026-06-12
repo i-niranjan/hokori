@@ -63,8 +63,18 @@ function ProjectsGhost() {
   );
 }
 
+function ResumeGhost() {
+  return (
+    <section className="flex flex-col items-center gap-2">
+      <div className={`${bone} h-9 w-36 rounded-full!`} />
+      <p className="text-xs opacity-40">Your resume appears here</p>
+    </section>
+  );
+}
+
 export const BLOCK_GHOSTS: Record<BlockType, ComponentType> = {
   PersonalInfo: PersonalInfoGhost,
   Skills: SkillsGhost,
   Projects: ProjectsGhost,
+  Resume: ResumeGhost,
 };

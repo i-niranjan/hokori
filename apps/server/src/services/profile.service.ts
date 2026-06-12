@@ -11,10 +11,8 @@ export const profileService = {
         avatarFileId: data.avatarFileId,
         title: data.role,
         bio: data.bio,
-        instagram: data.instagramUrl ?? null,
-        github: data.githubUrl ?? null,
-        twitter: data.xUrl ?? null,
-        linkedin: data.linkedInUrl ?? null,
+        contactEmail: data.contactEmail || null,
+        phone: data.phone || null,
       },
     });
     return profile;
@@ -42,14 +40,10 @@ export const profileService = {
     }
     if (data.role !== undefined) updateData.title = data.role;
     if (data.bio !== undefined) updateData.bio = data.bio;
-    if (data.instagramUrl !== undefined) {
-      updateData.instagram = data.instagramUrl || null;
+    if (data.contactEmail !== undefined) {
+      updateData.contactEmail = data.contactEmail || null;
     }
-    if (data.githubUrl !== undefined) updateData.github = data.githubUrl || null;
-    if (data.xUrl !== undefined) updateData.twitter = data.xUrl || null;
-    if (data.linkedInUrl !== undefined) {
-      updateData.linkedin = data.linkedInUrl || null;
-    }
+    if (data.phone !== undefined) updateData.phone = data.phone || null;
 
     const profile = await prisma.profile.update({
       where: { userId: userId },

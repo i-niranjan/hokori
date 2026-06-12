@@ -82,6 +82,45 @@ export function SkillsGlyph({ className }: GlyphProps) {
   );
 }
 
+export function ResumeGlyph({ className }: GlyphProps) {
+  return (
+    <svg
+      viewBox="0 0 48 48"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+      aria-hidden
+    >
+      <path
+        d="M11 10a4 4 0 0 1 4-4h12l10 10v22a4 4 0 0 1-4 4H15a4 4 0 0 1-4-4V10z"
+        className="fill-background stroke-current"
+        strokeWidth="2.5"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M27 6v6a4 4 0 0 0 4 4h6"
+        className="stroke-current"
+        strokeWidth="2.5"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M17 24h14M17 30h14M17 36h8"
+        className="stroke-current opacity-50"
+        strokeWidth="2.2"
+        strokeLinecap="round"
+      />
+      <circle cx="36" cy="36" r="5.5" className="fill-primary" />
+      <path
+        d="M34 36l1.4 1.4 2.6-2.8"
+        stroke="white"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 export function ProjectsGlyph({ className }: GlyphProps) {
   return (
     <svg

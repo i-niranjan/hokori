@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from "react";
-import type { ProjectData, SkillData } from "@hokori/types";
+import type { ProjectData, ResumeData, SkillData } from "@hokori/types";
 import type { PersonalInfoBlockData } from "@/models/blocks/types";
 import type { ThemeDefinition } from "../../types";
 import { getSocialLinks } from "../../lib";
@@ -81,6 +81,31 @@ function PersonalInfo({ data }: { data: PersonalInfoBlockData }) {
               </div>
             )}
           </>
+        )}
+
+        {(profile?.contactEmail || profile?.phone) && (
+          <div className="flex flex-col gap-1.5">
+            <Prompt command="cat contact.txt" />
+            <div className="flex flex-col gap-1 text-xs">
+              {profile.contactEmail && (
+                <a
+                  href={`mailto:${profile.contactEmail}`}
+                  className="w-max text-zinc-300 transition-colors hover:text-emerald-400"
+                >
+                  <span className="text-zinc-500">email:</span>{" "}
+                  {profile.contactEmail}
+                </a>
+              )}
+              {profile.phone && (
+                <a
+                  href={`tel:${profile.phone.replace(/[\s\-()]/g, "")}`}
+                  className="w-max text-zinc-300 transition-colors hover:text-emerald-400"
+                >
+                  <span className="text-zinc-500">phone:</span> {profile.phone}
+                </a>
+              )}
+            </div>
+          </div>
         )}
 
         {socials.length > 0 && (
@@ -172,6 +197,24 @@ function Projects({ data }: { data: ProjectData[] }) {
   );
 }
 
+function Resume({ data }: { data: ResumeData }) {
+  return (
+    <WindowChrome title="resume — zsh">
+      <div className="flex flex-col gap-2">
+        <Prompt command="open resume.pdf" />
+        <a
+          href={data.url}
+          target="_blank"
+          rel="noreferrer"
+          className="inline-flex w-max items-center gap-2 rounded border border-zinc-700 px-3 py-1.5 text-xs text-zinc-300 transition-colors hover:border-emerald-400 hover:text-emerald-400"
+        >
+          {data.fileName} <span className="text-emerald-400">→</span>
+        </a>
+      </div>
+    </WindowChrome>
+  );
+}
+
 export const terminalTheme: ThemeDefinition = {
   id: "terminal",
   name: "Terminal",
@@ -180,5 +223,6 @@ export const terminalTheme: ThemeDefinition = {
     PersonalInfo,
     Skills,
     Projects,
+    Resume,
   },
 };
