@@ -1,0 +1,16 @@
+node_modules
+**/node_modules
+**/dist
+**/.turbo
+**/*.tsbuildinfo
+.git
+.github
+.vscode
+.claude
+.fallow
+docs
+assets
+**/.env
+**/.env.*
+!**/.env.example
+*.md
