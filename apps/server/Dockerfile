@@ -8,7 +8,7 @@ WORKDIR /app
 COPY package.json package-lock.json turbo.json tsconfig.base.json ./
 COPY apps/server/package.json apps/server/
 COPY packages/types/package.json packages/types/
-RUN npm ci
+RUN --mount=type=cache,target=/root/.npm npm ci
 
 COPY packages/types packages/types
 COPY apps/server apps/server
@@ -17,7 +17,7 @@ COPY apps/server apps/server
 # needs a placeholder; the real URL is injected at runtime. Loose env mode
 # lets the placeholder through turbo's strict env filtering.
 ENV DATABASE_URL=postgresql://build:build@localhost:5432/build
-RUN npx turbo build --filter=@hokori/server --env-mode=loose
+RUN --mount=type=cache,target=/app/.turbo npx turbo build --filter=@hokori/server --env-mode=loose
 
 FROM node:22-alpine AS runner
 WORKDIR /app

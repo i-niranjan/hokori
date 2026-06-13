@@ -8,7 +8,7 @@ WORKDIR /app
 COPY package.json package-lock.json turbo.json tsconfig.base.json ./
 COPY apps/web/package.json apps/web/
 COPY packages/types/package.json packages/types/
-RUN npm ci
+RUN --mount=type=cache,target=/root/.npm npm ci
 
 COPY packages/types packages/types
 COPY apps/web apps/web
@@ -18,7 +18,7 @@ ARG VITE_API_URL
 ARG VITE_IMAGEKIT_PUBLIC_KEY
 ENV VITE_API_URL=$VITE_API_URL \
     VITE_IMAGEKIT_PUBLIC_KEY=$VITE_IMAGEKIT_PUBLIC_KEY
-RUN npx turbo build --filter=@hokori/web
+RUN --mount=type=cache,target=/app/.turbo npx turbo build --filter=@hokori/web
 
 FROM nginx:1.27-alpine AS runner
 COPY apps/web/nginx.conf /etc/nginx/conf.d/default.conf
