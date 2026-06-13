@@ -35,8 +35,8 @@ services:
       SMTP_USER: ${SMTP_USER:-}
       SMTP_PASS: ${SMTP_PASS:-}
       MAIL_FROM: ${MAIL_FROM:-}
-    ports:
-      - "3003:3003"
+    expose:
+      - "3003"
 
   web:
     build:
@@ -47,8 +47,8 @@ services:
         VITE_IMAGEKIT_PUBLIC_KEY: ${IMAGEKIT_PUBLIC_KEY}
     depends_on:
       - server
-    ports:
-      - "8080:80"
+    expose:
+      - "80"
 
 volumes:
   pgdata:
