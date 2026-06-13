@@ -1,15 +1,27 @@
-import type { UserSchema, Login } from "@/models/auth/authTypes";
+import type { UserSchema, Login, VerifyOtp } from "@/models/auth/authTypes";
 
 import { toast } from "sonner";
 import { createAppSlice } from "@/app/createAppSlice";
 import { AxiosError } from "axios";
 import api from "../refresh";
 
-function getApiErrorMessage(error: unknown, fallback: string): string {
-  if (error instanceof AxiosError) {
-    return error.response?.data?.message ?? fallback;
+export interface ApiAuthError {
+  message: string;
+  code?: string;
+  email?: string;
+  fields?: { email?: string; userName?: string };
+}
+
+function getApiError(error: unknown, fallback: string): ApiAuthError {
+  if (error instanceof AxiosError && error.response?.data?.message) {
+    return {
+      message: error.response.data.message,
+      code: error.response.data.code,
+      email: error.response.data.email,
+      fields: error.response.data.fields,
+    };
   }
-  return fallback;
+  return { message: fallback };
 }
 
 interface UserState {
@@ -22,38 +34,87 @@ interface UserState {
 interface AuthState {
   loading: boolean;
   user: UserState | null;
-  token: string | null;
 }
 
-const initialUser = {
-  userId: localStorage.getItem("userId") ?? null,
-  userName: localStorage.getItem("userName") ?? null,
-  email: localStorage.getItem("email") ?? null,
-  firstName: localStorage.getItem("firstName") ?? null,
-  lastName: localStorage.getItem("lastName") ?? null,
+/* Auth itself lives in httpOnly cookies; localStorage only mirrors
+   display info so the UI knows who's signed in across reloads. */
+const persistUser = (user: UserState) => {
+  localStorage.setItem("userId", user.userId ?? "");
+  localStorage.setItem("userName", user.userName ?? "");
+  localStorage.setItem("email", user.email ?? "");
+  localStorage.setItem("firstName", user.firstName ?? "");
+  localStorage.setItem("lastName", user.lastName ?? "");
 };
+
+const clearPersistedUser = () => {
+  ["userId", "userName", "email", "firstName", "lastName", "token"].forEach(
+    (key) => localStorage.removeItem(key),
+  );
+};
+
+const readPersistedUser = (): UserState | null => {
+  const userId = localStorage.getItem("userId");
+  if (!userId) return null;
+  return {
+    userId,
+    userName: localStorage.getItem("userName"),
+    email: localStorage.getItem("email"),
+    firstName: localStorage.getItem("firstName"),
+    lastName: localStorage.getItem("lastName"),
+  };
+};
+
+const toUserState = (user: {
+  id: string;
+  userName?: string | null;
+  firstName?: string | null;
+  lastName?: string | null;
+  email?: string | null;
+}): UserState => ({
+  userId: user.id,
+  userName: user.userName ?? null,
+  firstName: user.firstName ?? null,
+  lastName: user.lastName ?? null,
+  email: user.email ?? null,
+});
 
 const authSlice = createAppSlice({
   name: "auth",
   initialState: {
-    user: initialUser,
+    user: readPersistedUser(),
     loading: false,
-    token: localStorage.getItem("token") ?? null,
   } satisfies AuthState as AuthState,
   reducers: (create) => ({
-    tokenRefreshed: create.reducer((state, action: { payload: string }) => {
-      state.token = action.payload;
-      localStorage.setItem("token", action.payload);
-    }),
     signup: create.asyncThunk(
       async (data: UserSchema, { rejectWithValue }) => {
         try {
           const res = await api.post(`/auth/signup`, data);
-          const token = res.data.accessToken ?? res.data.token;
-
-          return { ...res.data, token };
+          return res.data as { message: string; email: string };
         } catch (error: unknown) {
-          return rejectWithValue(getApiErrorMessage(error, "Signup failed"));
+          return rejectWithValue(getApiError(error, "Signup failed"));
+        }
+      },
+      {
+        pending: (state) => {
+          state.loading = true;
+        },
+        // Errors render inline in the form; no toast here.
+        rejected: (state) => {
+          state.loading = false;
+        },
+        fulfilled: (state, action) => {
+          state.loading = false;
+          toast(action.payload.message);
+        },
+      },
+    ),
+    verifyOtp: create.asyncThunk(
+      async (data: VerifyOtp, { rejectWithValue }) => {
+        try {
+          const res = await api.post(`/auth/verify-otp`, data);
+          return res.data;
+        } catch (error: unknown) {
+          return rejectWithValue(getApiError(error, "Verification failed"));
         }
       },
       {
@@ -62,84 +123,47 @@ const authSlice = createAppSlice({
         },
         rejected: (state, action) => {
           state.loading = false;
-
-          toast.error(action.payload as string);
+          toast.error((action.payload as ApiAuthError).message);
         },
         fulfilled: (state, action) => {
           state.loading = false;
-          const { message, token, user } = action.payload;
-          state.user = user
-            ? {
-                userId: user.id,
-                userName: user.userName ?? null,
-                firstName: user.firstName ?? null,
-                lastName: user.lastName ?? null,
-                email: user.email ?? null,
-              }
-            : null;
-
-          state.token = token ?? null;
-          localStorage.setItem("token", token);
-          localStorage.setItem("userId", user.id);
-          if (user.userName) localStorage.setItem("userName", user.userName);
-          localStorage.setItem("email", user.email);
-          localStorage.setItem("firstName", user.firstName);
-          localStorage.setItem("lastName", user.lastName);
-          if (message) toast(message);
+          const { message, user } = action.payload;
+          state.user = user ? toUserState(user) : null;
+          if (state.user) persistUser(state.user);
+          if (message) toast.success(message);
         },
-      }
+      },
     ),
     login: create.asyncThunk(
       async (data: Login, { rejectWithValue }) => {
         try {
           const res = await api.post(`/auth/login`, data);
-          const token = res.data.accessToken ?? res.data.token;
-
-          return { ...res.data, token };
+          return res.data;
         } catch (error: unknown) {
-          return rejectWithValue(getApiErrorMessage(error, "Login Failed"));
+          return rejectWithValue(getApiError(error, "Login Failed"));
         }
       },
       {
         pending: (state) => {
           state.loading = true;
         },
-        rejected: (state, action) => {
+        // Errors render inline in the form; no toast here.
+        rejected: (state) => {
           state.loading = false;
-          console.log("FROm Payload", action.payload);
-
-          toast.error(action.payload as string);
         },
         fulfilled: (state, action) => {
           state.loading = false;
-          const { message, token, user } = action.payload;
-
-          state.user = user
-            ? {
-                userId: user.id,
-                userName: user.userName ?? null,
-                firstName: user.firstName ?? null,
-                lastName: user.lastName ?? null,
-                email: user.email ?? null,
-              }
-            : null;
-
-          state.token = token ?? null;
-          localStorage.setItem("token", token);
-          localStorage.setItem("userId", user.id);
-          if (user.userName) localStorage.setItem("userName", user.userName);
-          localStorage.setItem("email", user.email);
-          localStorage.setItem("firstName", user.firstName);
-          localStorage.setItem("lastName", user.lastName);
+          const { message, user } = action.payload;
+          state.user = user ? toUserState(user) : null;
+          if (state.user) persistUser(state.user);
           if (message) toast(message);
         },
-      }
+      },
     ),
     logout: create.asyncThunk(
       async () => {
         try {
           await api.post(`/auth/logout`);
-
           return { message: "Logged out successfully" };
         } catch {
           return { message: "Logged out successfully" };
@@ -151,28 +175,24 @@ const authSlice = createAppSlice({
         },
         rejected: (state) => {
           state.loading = false;
-
           state.user = null;
-          state.token = null;
-
-          toast.error("Logout failed");
+          clearPersistedUser();
         },
         fulfilled: (state, action) => {
           state.loading = false;
           state.user = null;
-          state.token = null;
-          localStorage.removeItem("token");
-          localStorage.removeItem("userId");
-          localStorage.removeItem("userName");
-          localStorage.removeItem("email");
-          localStorage.removeItem("firstName");
-          localStorage.removeItem("lastName");
+          clearPersistedUser();
           toast.success(action.payload.message);
         },
-      }
+      },
     ),
+    sessionExpired: create.reducer((state) => {
+      state.user = null;
+      clearPersistedUser();
+    }),
   }),
 });
 
-export const { signup, login, logout, tokenRefreshed } = authSlice.actions;
+export const { signup, verifyOtp, login, logout, sessionExpired } =
+  authSlice.actions;
 export default authSlice.reducer;

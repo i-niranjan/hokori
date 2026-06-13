@@ -9,3 +9,11 @@ export interface Login {
   identifier: string;
   password: string;
 }
+export interface VerifyOtp {
+  userName: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  code: string;
+}

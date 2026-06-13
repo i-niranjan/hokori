@@ -2,12 +2,10 @@ import { Link, useNavigate } from "react-router";
 import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/components/mode-toggle";
 import HokoriMark from "@/components/hokori-mark";
-import { isTokenExpired } from "@/helpers/helper";
 import { useAppSelector } from "@/lib/hooks";
 
 export default function HomeNavbar() {
-  const token = useAppSelector((state) => state.auth.token);
-  const isLoggedIn = token ? !isTokenExpired(token) : false;
+  const isLoggedIn = useAppSelector((state) => !!state.auth.user?.userId);
   const navigate = useNavigate();
 
   return (

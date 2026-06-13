@@ -1,23 +1,15 @@
 import { Navigate, Outlet } from "react-router-dom";
-import { useEffect } from "react";
-import { isTokenExpired } from "@/helpers/helper";
-import { useAppDispatch } from "@/app/store";
-import { logout } from "@/models/auth/features/authSlice";
-import { toast } from "sonner";
 import { useAppSelector } from "@/lib/hooks";
 
+/**
+ * Auth lives in httpOnly cookies the client can't read; the persisted user
+ * is the signal someone signed in. Expired sessions are caught by the API
+ * interceptor (silent refresh, then redirect to login on failure).
+ */
 const AuthGuard = () => {
-  const token = useAppSelector((state) => state.auth.token);
-  const dispatch = useAppDispatch();
+  const userId = useAppSelector((state) => state.auth.user?.userId);
 
-  useEffect(() => {
-    if (token && isTokenExpired(token)) {
-      toast("Session expired. Logging out.");
-      dispatch(logout());
-    }
-  }, [token, dispatch]);
-
-  if (!token || isTokenExpired(token)) {
+  if (!userId) {
     return <Navigate to="/auth/login" />;
   }
 

@@ -5,31 +5,108 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Link, useOutletContext } from "react-router";
 import { useForm } from "react-hook-form";
-import { IconEye, IconEyeClosed } from "@tabler/icons-react";
+import {
+  IconCircleCheck,
+  IconCircleX,
+  IconEye,
+  IconEyeClosed,
+  IconLoader2,
+} from "@tabler/icons-react";
 import type { AuthContextType } from "../pages/auth";
 import { useState } from "react";
 import { signupSchema } from "../schema";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { checkEmail, checkUsername } from "@/services/publicService";
+import {
+  useAvailability,
+  type AvailabilityStatus,
+} from "@/hooks/use-availability";
 
 type FormData = z.infer<typeof signupSchema>;
+
+const EMAIL_PATTERN = /^\S+@\S+\.\S+$/;
+
+const availabilityInputClass = (status: AvailabilityStatus) =>
+  cn(
+    status.state === "available" &&
+      "border-emerald-500/70 focus-visible:border-emerald-500 focus-visible:ring-emerald-500/30",
+    status.state === "taken" &&
+      "border-destructive/60 focus-visible:border-destructive focus-visible:ring-destructive/20",
+  );
+
+function AvailabilityIcon({ status }: { status: AvailabilityStatus }) {
+  return (
+    <span className="absolute right-2.5 top-1/2 -translate-y-1/2">
+      {status.state === "checking" && (
+        <IconLoader2 className="size-4 animate-spin text-muted-foreground" />
+      )}
+      {status.state === "available" && (
+        <IconCircleCheck className="size-4 text-emerald-600 dark:text-emerald-500" />
+      )}
+      {status.state === "taken" && (
+        <IconCircleX className="size-4 text-destructive" />
+      )}
+    </span>
+  );
+}
+
+function AvailabilityMessage({ status }: { status: AvailabilityStatus }) {
+  if (status.state === "taken") {
+    return <p className="text-xs text-destructive">{status.message}</p>;
+  }
+  if (status.state === "available") {
+    return (
+      <p className="text-xs text-emerald-600 dark:text-emerald-500">
+        {status.message}
+      </p>
+    );
+  }
+  return null;
+}
 
 export function SignupForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
   const [showPassword, setShowPassword] = useState(false);
+  const [serverError, setServerError] = useState<string | null>(null);
+
+  const username = useAvailability(checkUsername, {
+    shouldCheck: (value) => value.length >= 3,
+    availableMessage: "Username is available",
+  });
+  const email = useAvailability(checkEmail, {
+    shouldCheck: (value) => EMAIL_PATTERN.test(value),
+    availableMessage: "Email is good to go",
+  });
 
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    setError,
+    formState: { errors, isSubmitting },
   } = useForm<FormData>({
     mode: "onBlur",
     resolver: zodResolver(signupSchema),
   });
 
   const { handleSignup } = useOutletContext<AuthContextType>();
+
+  const onSubmit = handleSubmit(async (data) => {
+    setServerError(null);
+    const error = await handleSignup(data);
+    if (!error) return;
+    if (error.fields?.userName) {
+      setError("userName", { message: error.fields.userName });
+    }
+    if (error.fields?.email) {
+      setError("email", { message: error.fields.email });
+    }
+    if (!error.fields) {
+      setServerError(error.message);
+    }
+  });
 
   return (
     <div className={cn("flex flex-col gap-8", className)} {...props}>
@@ -42,37 +119,60 @@ export function SignupForm({
         </p>
       </div>
 
-      <form
-        onSubmit={handleSubmit(handleSignup)}
-        className="flex flex-col gap-5"
-      >
+      <form onSubmit={onSubmit} className="flex flex-col gap-5">
         <div className="grid gap-1.5">
           <Label htmlFor="userName">Username</Label>
-          <Input
-            {...register("userName")}
-            id="userName"
-            type="text"
-            placeholder="@codewithjohn"
-            required
-          />
-          {errors.userName && (
+          <div className="relative">
+            <Input
+              {...register("userName", {
+                onChange: (e) => username.queueCheck(e.target.value),
+              })}
+              id="userName"
+              type="text"
+              placeholder="@codewithjohn"
+              required
+              className={availabilityInputClass(username.status)}
+            />
+            <AvailabilityIcon status={username.status} />
+          </div>
+          {errors.userName ? (
             <p className="text-xs text-destructive">
               {errors.userName.message}
             </p>
+          ) : (
+            <AvailabilityMessage status={username.status} />
           )}
         </div>
 
         <div className="grid gap-1.5">
           <Label htmlFor="email">Email</Label>
-          <Input
-            {...register("email")}
-            id="email"
-            type="email"
-            placeholder="you@example.com"
-            required
-          />
-          {errors.email && (
+          <div className="relative">
+            <Input
+              {...register("email", {
+                onChange: (e) => email.queueCheck(e.target.value),
+              })}
+              id="email"
+              type="email"
+              placeholder="you@example.com"
+              required
+              className={availabilityInputClass(email.status)}
+            />
+            <AvailabilityIcon status={email.status} />
+          </div>
+          {errors.email ? (
             <p className="text-xs text-destructive">{errors.email.message}</p>
+          ) : email.status.state === "taken" ? (
+            <p className="text-xs text-destructive">
+              {email.status.message}.{" "}
+              <Link
+                to="/auth/login"
+                className="font-medium text-foreground underline-offset-2 hover:underline"
+              >
+                Sign in instead
+              </Link>
+            </p>
+          ) : (
+            <AvailabilityMessage status={email.status} />
           )}
         </div>
 
@@ -139,7 +239,24 @@ export function SignupForm({
           )}
         </div>
 
-        <Button type="submit" className="mt-1 w-full">
+        {serverError && (
+          <p
+            role="alert"
+            className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive"
+          >
+            {serverError}
+          </p>
+        )}
+
+        <Button
+          type="submit"
+          className="mt-1 w-full"
+          disabled={
+            isSubmitting ||
+            username.status.state === "taken" ||
+            email.status.state === "taken"
+          }
+        >
           Create account
         </Button>
       </form>

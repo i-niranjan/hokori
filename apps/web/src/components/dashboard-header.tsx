@@ -1,12 +1,7 @@
 import { Fragment } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
-import { Bell, Search } from "lucide-react";
-import {
-  IconDotsVertical,
-  IconLogout,
-  IconSettings,
-  IconUser,
-} from "@tabler/icons-react";
+import { Search } from "lucide-react";
+import { IconLogout, IconSettings, IconUser } from "@tabler/icons-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -99,34 +94,35 @@ export function DashboardHeader() {
         >
           <Search className="size-4" />
         </Button>
-        <Button variant="ghost" size="icon" aria-label="Notifications">
-          <Bell className="size-4" />
-        </Button>
         <ModeToggle />
         <Separator orientation="vertical" className="mx-1 h-5" />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              className="h-8 gap-2 px-1.5"
+            <button
+              type="button"
               aria-label="Account menu"
+              className="rounded-full outline-none ring-ring/50 transition-shadow hover:ring-2 focus-visible:ring-2"
             >
-              <Avatar className="size-7">
+              <Avatar className="size-8">
                 <AvatarImage src="" alt={user?.firstName ?? ""} />
                 <AvatarFallback className="text-[11px]">
                   {(user?.firstName?.[0] ?? "U").toUpperCase()}
                 </AvatarFallback>
               </Avatar>
-              <IconDotsVertical className="size-4 text-muted-foreground" />
-            </Button>
+            </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48">
+          <DropdownMenuContent align="end" className="w-64">
             <DropdownMenuLabel className="font-normal">
-              <div className="flex flex-col">
-                <span className="text-sm font-medium">
-                  {user?.firstName ?? "Guest"}
+              <div className="flex min-w-0 flex-col">
+                <span className="truncate text-sm font-medium">
+                  {[user?.firstName, user?.lastName]
+                    .filter(Boolean)
+                    .join(" ") || "Guest"}
                 </span>
-                <span className="text-xs text-muted-foreground">
+                <span
+                  className="truncate text-xs text-muted-foreground"
+                  title={user?.email ?? undefined}
+                >
                   {user?.email ?? ""}
                 </span>
               </div>

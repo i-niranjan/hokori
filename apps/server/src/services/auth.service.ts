@@ -4,6 +4,35 @@ import { isEmail } from "../utils/helper.js";
 import prisma from "../lib/prisma.js";
 
 export class AuthService {
+  async assertSignupAvailable({
+    email,
+    userName,
+  }: {
+    email: string;
+    userName: string;
+  }) {
+    const [existingEmailUser, existingUsernameUser] = await Promise.all([
+      prisma.user.findUnique({ where: { email } }),
+      prisma.user.findUnique({ where: { userName } }),
+    ]);
+
+    const fields: { email?: string; userName?: string } = {};
+    if (existingEmailUser) {
+      fields.email = "You already have an account with this email";
+    }
+    if (existingUsernameUser) {
+      fields.userName = "This username is already taken";
+    }
+
+    if (Object.keys(fields).length > 0) {
+      throw {
+        status: 409,
+        message: "Some details are already in use",
+        fields,
+      };
+    }
+  }
+
   async signUp({
     email,
     password,
@@ -15,23 +44,15 @@ export class AuthService {
     firstName: string;
     lastName: string;
   }) {
-    const [existingEmailUser, existingUsernameUser] = await Promise.all([
-      prisma.user.findUnique({ where: { email } }),
-      prisma.user.findUnique({ where: { userName: data.userName } }),
-    ]);
-
-    const errors = [];
-
-    if (existingEmailUser) errors.push("Email already exists");
-    if (existingUsernameUser) errors.push("Username already taken");
-
-    if (errors.length > 0) {
-      throw new Error(errors.join(" | "));
-    }
-
+    await this.assertSignupAvailable({ email, userName: data.userName });
     const hashedPassword = hashSync(password, 10);
     return prisma.user.create({
-      data: { email, password: hashedPassword, ...data },
+      data: {
+        email,
+        password: hashedPassword,
+        emailVerified: true,
+        ...data,
+      },
     });
   }
 

@@ -76,6 +76,14 @@ export const loginSchema = z.object({
   password: z.string().min(1),
 });
 
+export const verifyOtpSchema = signUpSchema.extend({
+  code: z.string().regex(/^\d{6}$/, "Enter the 6-digit code"),
+});
+
+export const resendOtpSchema = z.object({
+  email: z.string().email(),
+});
+
 export const createProfileSchema = z.object({
   fullName: z.string().min(1).max(100),
   profileImageUrl: z.string().max(500),

@@ -7,18 +7,28 @@ datasource db {
 }
 
 model User {
-  id        String    @id @default(uuid())
-  userName  String    @unique
-  email     String    @unique
-  firstName String
-  lastName  String
-  password  String
+  id            String    @id @default(uuid())
+  userName      String    @unique
+  email         String    @unique
+  firstName     String
+  lastName      String
+  password      String
+  emailVerified Boolean   @default(false)
   Project    Project[]
   Skill      Skill[]
   Profile    Profile?
   Page       Page?
   SocialLink SocialLink[]
   Resume     Resume?
+}
+
+model EmailOtp {
+  id         String   @id @default(cuid())
+  email      String   @unique
+  codeHash   String
+  expiresAt  DateTime
+  attempts   Int      @default(0)
+  lastSentAt DateTime @default(now())
 }
 
 model Resume {

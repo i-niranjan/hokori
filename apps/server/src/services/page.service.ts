@@ -71,6 +71,19 @@ export const pageService = {
     if (data.published !== undefined) {
       if (typeof data.published !== "boolean")
         throw new Error("Invalid published flag");
+      // An empty page must not go live.
+      if (data.published) {
+        const profile = await prisma.profile.findUnique({
+          where: { userId },
+          select: { id: true },
+        });
+        if (!profile) {
+          throw {
+            status: 400,
+            message: "Add your profile before publishing your page",
+          };
+        }
+      }
       updateData.published = data.published;
     }
     if (data.blocks !== undefined) {

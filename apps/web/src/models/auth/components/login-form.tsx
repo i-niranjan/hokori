@@ -16,13 +16,20 @@ export function LoginForm({
   ...props
 }: React.ComponentProps<"div">) {
   const [showPassword, setShowPassword] = useState(false);
+  const [serverError, setServerError] = useState<string | null>(null);
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm({ mode: "onBlur", resolver: zodResolver(loginSchema) });
 
   const { handleLogin } = useOutletContext<AuthContextType>();
+
+  const onSubmit = handleSubmit(async (data) => {
+    setServerError(null);
+    const error = await handleLogin(data);
+    if (error) setServerError(error.message);
+  });
 
   return (
     <div className={cn("flex flex-col gap-8", className)} {...props}>
@@ -35,10 +42,7 @@ export function LoginForm({
         </p>
       </div>
 
-      <form
-        onSubmit={handleSubmit(handleLogin)}
-        className="flex flex-col gap-5"
-      >
+      <form onSubmit={onSubmit} className="flex flex-col gap-5">
         <div className="grid gap-1.5">
           <Label htmlFor="identifier">Username or email</Label>
           <Input
@@ -93,7 +97,16 @@ export function LoginForm({
           )}
         </div>
 
-        <Button type="submit" className="mt-1 w-full">
+        {serverError && (
+          <p
+            role="alert"
+            className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive"
+          >
+            {serverError}
+          </p>
+        )}
+
+        <Button type="submit" className="mt-1 w-full" disabled={isSubmitting}>
           Sign in
         </Button>
       </form>

@@ -21,6 +21,12 @@ const envSchema = z.object({
   IMAGEKIT_URL_ENDPOINT: z.string().url(),
   IMAGEKIT_PUBLIC_KEY: z.string().min(1),
   IMAGEKIT_PRIVATE_KEY: z.string().min(1),
+  // SMTP is optional in dev: when unset, OTP codes are logged to the console.
+  SMTP_HOST: z.string().optional(),
+  SMTP_PORT: z.coerce.number().optional(),
+  SMTP_USER: z.string().optional(),
+  SMTP_PASS: z.string().optional(),
+  MAIL_FROM: z.string().optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);

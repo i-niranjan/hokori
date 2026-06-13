@@ -7,6 +7,7 @@ import { SignupForm } from "./models/auth/components/signup-form";
 import Home from "./Home";
 import MainLayout from "./MainLayout";
 import { LoginForm } from "./models/auth/components/login-form";
+import { VerifyOtpForm } from "./models/auth/components/verify-otp-form";
 import AuthGuard from "./components/AuthGuard";
 import { Toaster } from "./components/ui/sonner";
 import { lazy, Suspense, useEffect } from "react";
@@ -47,6 +48,7 @@ function AppRoutes() {
             <Route path="/auth" element={<Auth />}>
               <Route path="login" element={<LoginForm />} />
               <Route path="signup" element={<SignupForm />} />
+              <Route path="verify" element={<VerifyOtpForm />} />
             </Route>
 
             {/* Public profile — must stay last so static routes win. */}

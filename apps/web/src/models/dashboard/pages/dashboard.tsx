@@ -2,7 +2,7 @@ import BlockList from "@/models/blocks/components/BlockList";
 import AddBlockButton from "@/models/blocks/components/AddBlockButton";
 import PreviewCanvas from "@/models/preview/components/PreviewCanvas";
 import ThemeController from "@/models/preview/components/ThemeController";
-import PublishToggle from "../components/PublishToggle";
+import PageLinkBar from "../components/PageLinkBar";
 import { useEffect } from "react";
 import { useAppDispatch } from "@/app/store";
 import { setPageConfig } from "@/models/blocks/features/profileSlice";
@@ -24,17 +24,7 @@ function Dashboard() {
   }, [dispatch]);
   return (
     <div className="mx-auto w-full max-w-7xl px-6 py-8">
-      <div className="flex items-baseline justify-between border-b pb-4">
-        <div>
-          <h1 className="font-display text-3xl font-semibold tracking-tight text-foreground">
-            Dashboard
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Compose your Hokori page, one block at a time.
-          </p>
-        </div>
-        <PublishToggle />
-      </div>
+      <PageLinkBar />
 
       <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_22rem]">
         <section className="flex flex-col gap-4">
