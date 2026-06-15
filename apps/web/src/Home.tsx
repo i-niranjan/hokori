@@ -2,7 +2,7 @@ import { Link } from "react-router";
 import { Button } from "./components/ui/button";
 import { IconArrowUpRight } from "@tabler/icons-react";
 import HomeNavbar from "./components/homeNavbar";
-import { Card } from "./components/ui/card";
+import PhoneHero from "./blocks/phone-hero";
 
 const features = [
   {
@@ -56,34 +56,7 @@ function Home() {
         </div>
 
         <div className="relative flex justify-center md:justify-end">
-          <Card className="w-full max-w-sm rounded-md border bg-card p-6 shadow-none">
-            <div className="flex items-baseline justify-between border-b pb-3">
-              <span className="font-display text-sm font-semibold">
-                hokori<span className="text-primary">.</span>
-              </span>
-              <span className="font-display text-xs text-muted-foreground">
-                誇り
-              </span>
-            </div>
-            <div className="mt-4 flex items-center gap-3">
-              <div className="size-12 rounded-full bg-muted" />
-              <div className="flex flex-col">
-                <span className="text-sm font-medium">Your name</span>
-                <span className="text-xs text-muted-foreground">
-                  Your title
-                </span>
-              </div>
-            </div>
-            <p className="mt-4 text-sm italic text-muted-foreground">
-              "Small steps build a future you're proud of."
-            </p>
-            <div className="mt-5 flex items-center justify-between border-t pt-4">
-              <div className="size-2 rounded-full bg-primary" aria-hidden />
-              <span className="text-[10px] uppercase tracking-widest text-muted-foreground">
-                preview
-              </span>
-            </div>
-          </Card>
+          <PhoneHero />
         </div>
       </section>
 
@@ -91,9 +64,7 @@ function Home() {
         <div className="grid gap-10 md:grid-cols-3">
           {features.map((f) => (
             <div key={f.title} className="flex flex-col gap-2">
-              <h3 className="font-display text-lg font-semibold">
-                {f.title}
-              </h3>
+              <h3 className="font-display text-lg font-semibold">{f.title}</h3>
               <p className="text-sm text-muted-foreground">{f.desc}</p>
             </div>
           ))}
