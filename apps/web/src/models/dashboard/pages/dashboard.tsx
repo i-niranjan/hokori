@@ -1,5 +1,6 @@
 import BlockList from "@/models/blocks/components/BlockList";
 import AddBlockButton from "@/models/blocks/components/AddBlockButton";
+import ResumeImportButton from "@/models/blocks/components/ResumeImportButton";
 import PreviewCanvas from "@/models/preview/components/PreviewCanvas";
 import ThemeController from "@/models/preview/components/ThemeController";
 import PageLinkBar from "../components/PageLinkBar";
@@ -32,7 +33,10 @@ function Dashboard() {
             <h2 className="font-display text-sm font-medium uppercase tracking-wider text-muted-foreground">
               Blocks
             </h2>
-            <AddBlockButton />
+            <div className="flex items-center gap-2">
+              <ResumeImportButton />
+              <AddBlockButton />
+            </div>
           </div>
           <BlockList />
         </section>

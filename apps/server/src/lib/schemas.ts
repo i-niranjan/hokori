@@ -5,6 +5,7 @@ import {
   SOCIAL_PLATFORMS,
   normalizeUrl,
 } from "@hokori/types";
+import { REPHRASE_FIELDS, GENERATE_FIELDS } from "../utils/system.prompt.js";
 
 /** Accepts bare domains  and resolves them to https URLs. */
 const isValidUrl = (value: string) => {
@@ -119,6 +120,24 @@ export const updateProjectSchema = addProjectSchema
   .refine((data) => Object.keys(data).length > 0, {
     message: "No project fields provided for update",
   });
+
+export const rephraseSchema = z.object({
+  text: z
+    .string()
+    .trim()
+    .min(3, "Add a little more text before rephrasing")
+    .max(5000, "Text is too long to rephrase"),
+  field: z.enum(REPHRASE_FIELDS),
+});
+
+export const generateSchema = z.object({
+  field: z.enum(GENERATE_FIELDS),
+  prompt: z
+    .string()
+    .trim()
+    .min(3, "Add a few keywords to generate from")
+    .max(500, "Keep your prompt under 500 characters"),
+});
 
 export const setResumeSchema = z.object({
   url: z.string().min(1).max(500),

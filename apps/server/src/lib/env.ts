@@ -21,6 +21,8 @@ const envSchema = z.object({
   IMAGEKIT_URL_ENDPOINT: z.string().url(),
   IMAGEKIT_PUBLIC_KEY: z.string().min(1),
   IMAGEKIT_PRIVATE_KEY: z.string().min(1),
+  // Gemini key powering the text-rephrase helper.
+  GEMINI_API_KEY: z.string().min(1),
   // SMTP is optional in dev: when unset, OTP codes are logged to the console.
   SMTP_HOST: z.string().optional(),
   SMTP_PORT: z.coerce.number().optional(),

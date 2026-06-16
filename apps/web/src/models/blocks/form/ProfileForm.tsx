@@ -19,11 +19,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
 import { Upload } from "lucide-react";
-import {
-  IconChevronDown,
-  IconLoader2,
-  IconX,
-} from "@tabler/icons-react";
+import { IconChevronDown, IconLoader2, IconX } from "@tabler/icons-react";
 import { Input } from "@/components/ui/input";
 import { useForm, type FieldErrors } from "react-hook-form";
 import {
@@ -48,6 +44,9 @@ import api from "@/models/auth/refresh";
 import { deletImage } from "@/services/imageKitService";
 import clsx from "clsx";
 import { Textarea } from "@/components/ui/textarea";
+import { RephraseButton } from "@/components/ui/rephrase-button";
+import { GenerateButton } from "@/components/ui/generate-button";
+import { generateBio } from "@/services/aiService";
 import {
   SOCIAL_PLATFORMS,
   normalizeUrl,
@@ -176,8 +175,7 @@ export default function ProfileForm({
 
   const handleTabChange = (next: string) => {
     const order = FORM_TABS.map((t) => t.value as string);
-    slideDir.current =
-      order.indexOf(next) > order.indexOf(tab) ? 1 : -1;
+    slideDir.current = order.indexOf(next) > order.indexOf(tab) ? 1 : -1;
     setTab(next as FormTab);
   };
 
@@ -354,133 +352,152 @@ export default function ProfileForm({
                   transition={{ duration: 0.22, ease: "easeOut" }}
                   className="flex flex-col gap-5 px-0.5 pb-1 pt-5"
                 >
-                <FormField
-                  control={form.control}
-                  name="profileImageUrl"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <div className="flex items-center gap-4">
-                          <div className="relative shrink-0">
-                            <Label
-                              htmlFor="profileImage"
-                              className={clsx(
-                                "cursor-pointer",
-                                preview?.url && "cursor-default",
+                  <FormField
+                    control={form.control}
+                    name="profileImageUrl"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <div className="flex items-center gap-4">
+                            <div className="relative shrink-0">
+                              <Label
+                                htmlFor="profileImage"
+                                className={clsx(
+                                  "cursor-pointer",
+                                  preview?.url && "cursor-default",
+                                )}
+                              >
+                                <Avatar
+                                  key={preview?.url ?? "fallback"}
+                                  className="size-16 border"
+                                >
+                                  {profileLoading ? (
+                                    <div className="flex h-full w-full items-center justify-center">
+                                      <IconLoader2 className="size-4 animate-spin text-muted-foreground" />
+                                    </div>
+                                  ) : preview?.url ? (
+                                    <AvatarImage src={preview.url} />
+                                  ) : (
+                                    <AvatarFallback>
+                                      <Upload className="size-4" />
+                                    </AvatarFallback>
+                                  )}
+                                </Avatar>
+                              </Label>
+                              {preview?.fieldId && (
+                                <button
+                                  type="button"
+                                  onClick={() => removeImage(field.onChange)}
+                                  aria-label="Remove photo"
+                                  className="absolute -right-1 -top-1 rounded-full border bg-background p-0.5 transition-transform hover:scale-110"
+                                >
+                                  {removeLoading ? (
+                                    <IconLoader2 className="size-3.5 animate-spin text-muted-foreground" />
+                                  ) : (
+                                    <IconX className="size-3.5" />
+                                  )}
+                                </button>
                               )}
-                            >
-                              <Avatar
-                                key={preview?.url ?? "fallback"}
-                                className="size-16 border"
-                              >
-                                {profileLoading ? (
-                                  <div className="flex h-full w-full items-center justify-center">
-                                    <IconLoader2 className="size-4 animate-spin text-muted-foreground" />
-                                  </div>
-                                ) : preview?.url ? (
-                                  <AvatarImage src={preview.url} />
-                                ) : (
-                                  <AvatarFallback>
-                                    <Upload className="size-4" />
-                                  </AvatarFallback>
-                                )}
-                              </Avatar>
-                            </Label>
-                            {preview?.fieldId && (
-                              <button
-                                type="button"
-                                onClick={() => removeImage(field.onChange)}
-                                aria-label="Remove photo"
-                                className="absolute -right-1 -top-1 rounded-full border bg-background p-0.5 transition-transform hover:scale-110"
-                              >
-                                {removeLoading ? (
-                                  <IconLoader2 className="size-3.5 animate-spin text-muted-foreground" />
-                                ) : (
-                                  <IconX className="size-3.5" />
-                                )}
-                              </button>
-                            )}
+                            </div>
+                            <div className="flex flex-col gap-0.5">
+                              <span className="text-sm font-medium">
+                                Profile photo
+                              </span>
+                              <span className="text-xs text-muted-foreground">
+                                {preview?.url
+                                  ? "Remove the current photo to upload a new one."
+                                  : "Click the circle to upload."}
+                              </span>
+                            </div>
+                            <Input
+                              ref={inputRef}
+                              disabled={!!preview?.url}
+                              id="profileImage"
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) handleUpload(file, field.onChange);
+                              }}
+                            />
                           </div>
-                          <div className="flex flex-col gap-0.5">
-                            <span className="text-sm font-medium">
-                              Profile photo
-                            </span>
-                            <span className="text-xs text-muted-foreground">
-                              {preview?.url
-                                ? "Remove the current photo to upload a new one."
-                                : "Click the circle to upload."}
-                            </span>
-                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="fullName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Your name" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="role"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Role</FormLabel>
+                        <FormControl>
                           <Input
-                            ref={inputRef}
-                            disabled={!!preview?.url}
-                            id="profileImage"
-                            type="file"
-                            accept="image/*"
-                            className="hidden"
-                            onChange={(e) => {
-                              const file = e.target.files?.[0];
-                              if (file) handleUpload(file, field.onChange);
+                            placeholder="Full Stack Developer"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="bio"
+                    render={({ field }) => (
+                      <FormItem>
+                        <div className="flex items-center justify-between">
+                          <FormLabel>Bio</FormLabel>
+                          <GenerateButton
+                            label="Generate"
+                            placeholder="A few keywords about you — e.g. full stack dev, 3 yrs, fintech, loves design systems"
+                            onGenerate={async (prompt) => {
+                              const bio = await generateBio(prompt);
+                              if (bio) field.onChange(bio);
                             }}
                           />
                         </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="fullName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Your name" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="role"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Role</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Full Stack Developer"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="bio"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Bio</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          rows={3}
-                          placeholder="I build full stack apps and write about what I learn."
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        A short line about yourself, shown under your name.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                        <FormControl>
+                          <div className="relative">
+                            <Textarea
+                              rows={3}
+                              placeholder="I build full stack apps and write about what I learn."
+                              className="pr-10"
+                              {...field}
+                            />
+                            <RephraseButton
+                              value={field.value}
+                              field="bio"
+                              onRephrased={field.onChange}
+                              className="absolute right-2 top-2"
+                            />
+                          </div>
+                        </FormControl>
+                        <FormDescription>
+                          A short line about yourself, shown under your name.
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </motion.div>
               </TabsContent>
 
@@ -492,97 +509,97 @@ export default function ProfileForm({
                   transition={{ duration: 0.22, ease: "easeOut" }}
                   className="flex flex-col gap-5 px-0.5 pb-1 pt-5"
                 >
-                <FormField
-                  control={form.control}
-                  name="contactEmail"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="email"
-                          placeholder="you@example.com"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Shown on your page as an "Email me" button.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="phone"
-                  render={({ field }) => {
-                    const number = field.value
-                      ? splitPhone(field.value).number
-                      : "";
-                    return (
+                  <FormField
+                    control={form.control}
+                    name="contactEmail"
+                    render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Phone</FormLabel>
+                        <FormLabel>Email</FormLabel>
                         <FormControl>
-                          <div className="flex gap-2">
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button
-                                  type="button"
-                                  variant="outline"
-                                  className="w-24 shrink-0 justify-between font-normal"
-                                >
-                                  {dialCode}
-                                  <IconChevronDown className="size-4 text-muted-foreground" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent
-                                align="start"
-                                className="max-h-64 overflow-y-auto"
-                              >
-                                {COUNTRY_CODES.map((c) => (
-                                  <DropdownMenuItem
-                                    key={`${c.dial}-${c.country}`}
-                                    onSelect={() => {
-                                      setDialCode(c.dial);
-                                      field.onChange(
-                                        number ? `${c.dial} ${number}` : "",
-                                      );
-                                    }}
-                                  >
-                                    <span className="w-12 font-medium">
-                                      {c.dial}
-                                    </span>
-                                    <span className="text-muted-foreground">
-                                      {c.country}
-                                    </span>
-                                  </DropdownMenuItem>
-                                ))}
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                            <Input
-                              type="tel"
-                              placeholder="98765 43210"
-                              value={number}
-                              onChange={(e) => {
-                                const next = e.target.value;
-                                field.onChange(
-                                  next.trim()
-                                    ? `${dialCode} ${next.trim()}`
-                                    : "",
-                                );
-                              }}
-                            />
-                          </div>
+                          <Input
+                            type="email"
+                            placeholder="you@example.com"
+                            {...field}
+                          />
                         </FormControl>
                         <FormDescription>
-                          Optional. Tappable on phones via a call link.
+                          Shown on your page as an "Email me" button.
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
-                    );
-                  }}
-                />
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="phone"
+                    render={({ field }) => {
+                      const number = field.value
+                        ? splitPhone(field.value).number
+                        : "";
+                      return (
+                        <FormItem>
+                          <FormLabel>Phone</FormLabel>
+                          <FormControl>
+                            <div className="flex gap-2">
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    className="w-24 shrink-0 justify-between font-normal"
+                                  >
+                                    {dialCode}
+                                    <IconChevronDown className="size-4 text-muted-foreground" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent
+                                  align="start"
+                                  className="max-h-64 overflow-y-auto"
+                                >
+                                  {COUNTRY_CODES.map((c) => (
+                                    <DropdownMenuItem
+                                      key={`${c.dial}-${c.country}`}
+                                      onSelect={() => {
+                                        setDialCode(c.dial);
+                                        field.onChange(
+                                          number ? `${c.dial} ${number}` : "",
+                                        );
+                                      }}
+                                    >
+                                      <span className="w-12 font-medium">
+                                        {c.dial}
+                                      </span>
+                                      <span className="text-muted-foreground">
+                                        {c.country}
+                                      </span>
+                                    </DropdownMenuItem>
+                                  ))}
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                              <Input
+                                type="tel"
+                                placeholder="98765 43210"
+                                value={number}
+                                onChange={(e) => {
+                                  const next = e.target.value;
+                                  field.onChange(
+                                    next.trim()
+                                      ? `${dialCode} ${next.trim()}`
+                                      : "",
+                                  );
+                                }}
+                              />
+                            </div>
+                          </FormControl>
+                          <FormDescription>
+                            Optional. Tappable on phones via a call link.
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      );
+                    }}
+                  />
                 </motion.div>
               </TabsContent>
 
@@ -594,32 +611,32 @@ export default function ProfileForm({
                   transition={{ duration: 0.22, ease: "easeOut" }}
                   className="flex flex-col gap-3 px-0.5 pb-1 pt-5"
                 >
-                <p className="text-xs text-muted-foreground">
-                  Paste full links or just the domain, we'll handle the rest.
-                  Empty fields stay off your page.
-                </p>
-                {SOCIAL_PLATFORMS.map((platform) => {
-                  const { label, Icon } = PLATFORM_META[platform];
-                  return (
-                    <div key={platform} className="flex items-center gap-3">
-                      <div className="flex w-32 shrink-0 items-center gap-2">
-                        <Icon className="size-4 text-muted-foreground" />
-                        <span className="text-sm">{label}</span>
+                  <p className="text-xs text-muted-foreground">
+                    Paste full links or just the domain, we'll handle the rest.
+                    Empty fields stay off your page.
+                  </p>
+                  {SOCIAL_PLATFORMS.map((platform) => {
+                    const { label, Icon } = PLATFORM_META[platform];
+                    return (
+                      <div key={platform} className="flex items-center gap-3">
+                        <div className="flex w-32 shrink-0 items-center gap-2">
+                          <Icon className="size-4 text-muted-foreground" />
+                          <span className="text-sm">{label}</span>
+                        </div>
+                        <Input
+                          type="text"
+                          placeholder={`${label.toLowerCase()}.com/you`}
+                          value={socialUrls[platform] ?? ""}
+                          onChange={(e) =>
+                            setSocialUrls((prev) => ({
+                              ...prev,
+                              [platform]: e.target.value,
+                            }))
+                          }
+                        />
                       </div>
-                      <Input
-                        type="text"
-                        placeholder={`${label.toLowerCase()}.com/you`}
-                        value={socialUrls[platform] ?? ""}
-                        onChange={(e) =>
-                          setSocialUrls((prev) => ({
-                            ...prev,
-                            [platform]: e.target.value,
-                          }))
-                        }
-                      />
-                    </div>
-                  );
-                })}
+                    );
+                  })}
                 </motion.div>
               </TabsContent>
             </Tabs>

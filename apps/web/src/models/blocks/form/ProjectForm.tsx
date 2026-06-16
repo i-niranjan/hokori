@@ -6,6 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { RephraseButton } from "@/components/ui/rephrase-button";
+import { GenerateButton } from "@/components/ui/generate-button";
+import { generateProject } from "@/services/aiService";
 import {
   Dialog,
   DialogContent,
@@ -146,9 +149,21 @@ export default function ProjectForm({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-130">
         <DialogHeader>
-          <DialogTitle className="font-display">
-            {initialData ? "Edit Project" : "Add Project"}
-          </DialogTitle>
+          <div className="flex items-center justify-between gap-2">
+            <DialogTitle className="font-display">
+              {initialData ? "Edit Project" : "Add Project"}
+            </DialogTitle>
+            <GenerateButton
+              label="Generate with AI"
+              placeholder="What's the project? e.g. invoice generator for freelancers, built with React + Node, cut billing time in half"
+              onGenerate={async (prompt) => {
+                const project = await generateProject(prompt);
+                if (project.title) setTitle(project.title);
+                if (project.desc) setDesc(project.desc);
+                if (project.longDesc) setLongDesc(project.longDesc);
+              }}
+            />
+          </div>
           <DialogDescription>
             Visitors see the title and summary on your page, and the full
             story when they open the project.
@@ -219,25 +234,43 @@ export default function ProjectForm({
 
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="project-desc">Summary</Label>
-            <Input
-              id="project-desc"
-              value={desc}
-              maxLength={500}
-              placeholder="One line about what it does"
-              onChange={(e) => setDesc(e.target.value)}
-            />
+            <div className="relative">
+              <Input
+                id="project-desc"
+                value={desc}
+                maxLength={500}
+                placeholder="One line about what it does"
+                className="pr-9"
+                onChange={(e) => setDesc(e.target.value)}
+              />
+              <RephraseButton
+                value={desc}
+                field="projectSummary"
+                onRephrased={setDesc}
+                className="absolute right-1.5 top-1/2 -translate-y-1/2"
+              />
+            </div>
           </div>
 
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="project-longdesc">Long description</Label>
-            <Textarea
-              id="project-longdesc"
-              value={longDesc}
-              maxLength={5000}
-              rows={5}
-              placeholder="The full story: what you built, the stack, the challenges, the results."
-              onChange={(e) => setLongDesc(e.target.value)}
-            />
+            <div className="relative">
+              <Textarea
+                id="project-longdesc"
+                value={longDesc}
+                maxLength={5000}
+                rows={5}
+                placeholder="The full story: what you built, the stack, the challenges, the results."
+                className="max-h-60 overflow-y-auto pr-10"
+                onChange={(e) => setLongDesc(e.target.value)}
+              />
+              <RephraseButton
+                value={longDesc}
+                field="projectLongDesc"
+                onRephrased={setLongDesc}
+                className="absolute right-2 top-2"
+              />
+            </div>
           </div>
 
           <div className="flex flex-col gap-1.5">

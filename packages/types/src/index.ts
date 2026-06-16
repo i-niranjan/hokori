@@ -86,6 +86,40 @@ export interface SkillData {
   icon?: string | null;
 }
 
+/** Voice options for the variant rephrase popover. */
+export const REPHRASE_TONES = ["professional", "casual", "concise"] as const;
+export type RephraseTone = (typeof REPHRASE_TONES)[number];
+
+export interface RephraseVariant {
+  tone: RephraseTone;
+  text: string;
+}
+
+/** Fields the "generate from scratch" helper can write. */
+export const GENERATE_FIELDS = ["bio", "project"] as const;
+export type GenerateField = (typeof GENERATE_FIELDS)[number];
+
+/** Title/summary/long-description generated for a project from a prompt. */
+export interface GeneratedProject {
+  title: string;
+  desc: string;
+  longDesc: string;
+}
+
+/**
+ * Structured data Gemini extracts from an uploaded résumé. Everything is
+ * best-effort — the user reviews and deselects before any of it is saved.
+ */
+export interface ResumeParseResult {
+  name?: string;
+  role?: string;
+  bio?: string;
+  contactEmail?: string;
+  phone?: string;
+  skills: string[];
+  projects: { title: string; desc: string; longDesc?: string }[];
+}
+
 export interface AddSkillPayload {
   name: string;
   icon?: string;

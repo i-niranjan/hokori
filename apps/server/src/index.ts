@@ -13,6 +13,7 @@ import projectRoutes from "./routes/project.routes.js";
 import socialRoutes from "./routes/social.routes.js";
 import resumeRoutes from "./routes/resume.routes.js";
 import imageKitRoutes from "./routes/imagekit.routes.js";
+import aiRoutes from "./routes/ai.routes.js";
 import cookieParser from "cookie-parser";
 
 const PORT = env.PORT;
@@ -66,6 +67,7 @@ app.use("/component/social", socialRoutes);
 app.use("/component/resume", resumeRoutes);
 app.use("/page", pageRoutes);
 app.use("/public", publicRoutes);
+app.use("/ai", aiRoutes);
 
 app.use(errorHandler);
 
